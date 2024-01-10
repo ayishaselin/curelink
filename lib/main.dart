@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import  'intro1.dart';
 
 main(){
   runApp(MyApp());
@@ -23,9 +24,17 @@ class HomeScreen extends StatelessWidget {
 
   @override
    Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.blue,
-    body: SafeArea(
+  return  GestureDetector(
+          onTap: () {
+            // Navigate to the second page
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SecondPage()),
+            );
+          },
+          child:Scaffold(
+            backgroundColor: Colors.blue,
+       body:SafeArea(
       child: Container(
         width: double.infinity,
         height: double.infinity,
@@ -34,6 +43,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     ),
+  ),
   );
 }
 
