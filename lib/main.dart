@@ -22,26 +22,19 @@ class HomeScreen extends StatelessWidget {
 
 
   @override
-  Widget build(BuildContext context) {
-    return  Scaffold(
-      backgroundColor: Colors.blue,
-      body:  SafeArea(
-        child:  Container(
-          width: double.infinity,
-          height: double.infinity,
-          child:Center(
-        child: Text(
-          'Curelink',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 50,
-            fontWeight: FontWeight.bold,
-          ),
-          ),
-          ),
+   Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.blue,
+    body: SafeArea(
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        child: Center(
+          child: Image.asset('images/logo.png'),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
