@@ -18,21 +18,31 @@ main(){
   }
 }
   
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
    HomeScreen({super.key});
+   
+   
+  
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
+class _HomeScreenState extends State<HomeScreen> {
+  
+   @override
+  void initState() {
+    super.initState();
 
-  @override
+    // Navigate to the second page after a short delay
+    Future.delayed(Duration(seconds:4), () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SecondPage()),
+      );
+    });
+  }
    Widget build(BuildContext context) {
-  return  GestureDetector(
-          onTap: () {
-            // Navigate to the second page
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SecondPage()),
-            );
-          },
-          child:Scaffold(
+   
+          return Scaffold(
             backgroundColor: Colors.blue,
        body:SafeArea(
       child: Container(
@@ -43,8 +53,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     ),
-  ),
   );
-}
 
+}
 }
