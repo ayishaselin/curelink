@@ -1,4 +1,5 @@
  import 'package:flutter/material.dart';
+ import 'intro2.dart';
 
 class SecondPage extends StatelessWidget {
   const SecondPage({super.key});
@@ -29,21 +30,25 @@ class SecondPage extends StatelessWidget {
            
              ElevatedButton(
               onPressed: () {
-                // Handle button press
+                Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ThirdPage()),
+    );
               },
-              child: Text('Get Started'),
+              child: Text('Let\'s Get Started'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.all(15),
-                primary: Color.fromARGB(255, 35, 73, 241), // Adjust the background color as needed
+                primary: Color.fromARGB(255, 20, 20, 232),
                 textStyle: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal,
+                  
                   
                 ),
                  shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40.0), // Rounded edges
-              ),minimumSize: Size(150, 0),
+              ),minimumSize: Size(380, 0),
 
               ),
             ),
@@ -69,7 +74,7 @@ class SecondPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.blue,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.normal,
               ),
             ),
           ),],
