@@ -18,11 +18,11 @@ class SecondPage extends StatelessWidget {
             child: Image.asset('images/doctorintro.png'),
           ),
            const SizedBox(height: 5),
-          Text(
+          const Text(
             'Your Personalized Platform Connecting You to the Perfect Doctor',
             style: TextStyle(
               fontSize: 12,
-              color: Color.fromARGB(244, 70, 67, 67),
+              color: Colors.grey,
               fontWeight: FontWeight.normal,
             ),
           ),
@@ -32,15 +32,14 @@ class SecondPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ThirdPage()),
+      MaterialPageRoute(builder: (context) => const ThirdPage()),
     );
               },
-              child: Text('Let\'s Get Started'),
+              child: const Text('Let\'s Get Started', style: TextStyle(color: Colors.white),),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(15),
-                primary: Color.fromARGB(255, 20, 20, 232),
-                textStyle: TextStyle(
-                  color: Colors.white,
+                padding: const EdgeInsets.all(10),
+              backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+                textStyle: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.normal,
                   
@@ -48,7 +47,7 @@ class SecondPage extends StatelessWidget {
                 ),
                  shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40.0), // Rounded edges
-              ),minimumSize: Size(380, 0),
+              ),minimumSize: const Size(380, 0),
 
               ),
             ),
@@ -56,7 +55,7 @@ class SecondPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 'Already have an account?',
                 style: TextStyle(
                   fontSize: 14,
@@ -69,7 +68,7 @@ class SecondPage extends StatelessWidget {
             onPressed: () {
               // Handle "Sign in" text button press
             },
-            child: Text(
+            child: const Text(
               'Sign in.',
               style: TextStyle(
                 fontSize: 14,

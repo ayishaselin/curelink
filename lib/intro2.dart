@@ -24,7 +24,7 @@ class ThirdPage extends StatelessWidget {
               onPressed: () {
                 // Handle 'Skip' button press
               },
-              child: Text(
+              child: const Text(
                 'Skip',
                 style: TextStyle(
                   color: Colors.blue,
@@ -40,10 +40,10 @@ class ThirdPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  margin: EdgeInsets.only(right: 8.0),
+                  margin: const EdgeInsets.only(right: 8.0),
                   width: 10.0,
                   height: 10.0,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Color.fromARGB(255, 33, 68, 243),
                   ),
@@ -51,16 +51,16 @@ class ThirdPage extends StatelessWidget {
                 Container(
                   width: 10.0,
                   height: 10.0,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Color.fromARGB(255, 170, 167, 245),
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.only(left: 8.0),
+                  margin: const EdgeInsets.only(left: 8.0),
                   width: 10.0,
                   height: 10.0,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Color.fromARGB(255, 163, 167, 239),
                   ),
@@ -69,16 +69,15 @@ class ThirdPage extends StatelessWidget {
                   onPressed: () {
                       Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ForthPage()),
+      MaterialPageRoute(builder: (context) => const ForthPage()),
     );
                   },
-                  icon: Icon(
-                    Icons.arrow_forward_ios,
-                    color: Color.fromARGB(255, 36, 45, 222), // Change icon color to white
-                    size: 20.0, // Adjust icon size as needed
-                  ),
+                  icon: const Icon(
+              Icons.arrow_forward_ios,
+              color: Color.fromARGB(255, 36, 45, 222), // Change icon color to white
+              size: 20.0,
                 ),
-              ],
+            )],
             ),),
   ]),);
   }
