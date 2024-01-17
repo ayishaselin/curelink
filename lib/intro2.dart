@@ -73,7 +73,7 @@ class ThirdPage extends StatelessWidget {
     );
                   },
                   icon: const Icon(
-              Icons.arrow_forward_ios,
+              Icons.arrow_forward,
               color: Color.fromARGB(255, 36, 45, 222), // Change icon color to white
               size: 20.0,
                 ),
