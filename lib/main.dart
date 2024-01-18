@@ -11,6 +11,7 @@ main(){
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+ debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Colors.lightBlue
       ),home: HomeScreen(),
@@ -33,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     // Navigate to the second page after a short delay
-    Future.delayed(Duration(seconds:4), () {
+    Future.delayed(const Duration(seconds:2), () {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => SecondPage()),
@@ -54,6 +55,5 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     ),
   );
-
 }
 }

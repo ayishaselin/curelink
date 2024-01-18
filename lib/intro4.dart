@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'Signin.dart';
 
 class FifthPage extends StatelessWidget {
   const FifthPage({super.key});
@@ -92,7 +93,9 @@ class FifthPage extends StatelessWidget {
                 ),
                  IconButton(
                   onPressed: () {
-                    // Handle icon button press
+                    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Signin() ));// Handle icon button press
                   },
                   icon: Icon(
                     Icons.arrow_forward,

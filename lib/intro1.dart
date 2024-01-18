@@ -1,5 +1,9 @@
  import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Signin.dart';
  import 'intro2.dart';
+ import 'package:google_fonts/google_fonts.dart';
+ 
+ 
 
 class SecondPage extends StatelessWidget {
   const SecondPage({super.key});
@@ -54,6 +58,7 @@ class SecondPage extends StatelessWidget {
              const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
                 'Already have an account?',
@@ -62,22 +67,36 @@ class SecondPage extends StatelessWidget {
                   color: Colors.black,
                 ),
               ),
-            
-          
-          TextButton(
-            onPressed: () {
-              // Handle "Sign in" text button press
-            },
-            child: const Text(
-              'Sign in.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.blue,
-                fontWeight: FontWeight.normal,
+             
+              const SizedBox(
+                width: 0,
               ),
-            ),
-          ),],
-          )],
+              TextButton(
+                
+                   onPressed: () {
+                Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Signin() ));// Handle "Sign in" text button press
+                },
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero, // Reduces internal padding to zero
+                  minimumSize:
+                      Size.zero, // Reduces the minimum size constraints
+                  tapTargetSize: MaterialTapTargetSize
+                      .shrinkWrap, // Reduces the tap target size
+                ),
+                child: Text(
+                  'Sign in.',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: Colors.blue,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          ]
         ),
     );
   }
