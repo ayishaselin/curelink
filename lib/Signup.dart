@@ -1,5 +1,6 @@
  import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'Signin.dart';
 
 class SignUp extends StatelessWidget {
   const SignUp({Key? key});
@@ -201,6 +202,7 @@ class SignUp extends StatelessWidget {
               const SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: () {
+                  
                   // Handle sign-in logic here
                 },
                 child: Text('Sign Up', style: GoogleFonts.inter(color: Colors.white)),
@@ -304,23 +306,28 @@ class SignUp extends StatelessWidget {
                     width: 0,
                   ),
                   TextButton(
-                    onPressed: () {
-                      // Handle "Sign Up" text button press
-                    },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      'Sign In',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
+                
+                   onPressed: () {
+                Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Signin() ));// Handle "Sign in" text button press
+                },
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero, // Reduces internal padding to zero
+                  minimumSize:
+                      Size.zero, // Reduces the minimum size constraints
+                  tapTargetSize: MaterialTapTargetSize
+                      .shrinkWrap, // Reduces the tap target size
+                ),
+                child: Text(
+                  'Sign in.',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: Colors.blue,
+                    fontWeight: FontWeight.normal,
                   ),
+                ),
+              ),
                 ],
               ),
             ],
