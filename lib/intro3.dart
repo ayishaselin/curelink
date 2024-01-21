@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Signup.dart';
 import 'intro4.dart';
 
 class ForthPage extends StatelessWidget {
@@ -23,7 +24,7 @@ class ForthPage extends StatelessWidget {
               fontWeight: FontWeight.normal,
             ),
           ),
-          const SizedBox(height: 0),
+          const SizedBox(height: 0.01),
         Text(
             'inquiries, and let our qualified doctors provide',
             style: TextStyle(
@@ -32,7 +33,7 @@ class ForthPage extends StatelessWidget {
               fontWeight: FontWeight.normal,
             ),
           ),
-          const SizedBox(height: 0),
+          const SizedBox(height: 0.01),
           Text(
             ' personalized insights and answers',
             style: TextStyle(
@@ -48,7 +49,9 @@ class ForthPage extends StatelessWidget {
             right: 16.0,
             child: TextButton(
               onPressed: () {
-                // Handle 'Skip' button press
+                 Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SignUp() ));// Handle 'Skip' button press
               },
               child: Text(
                 'Skip',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'Signin.dart';
+import 'Signup.dart';
 
 class FifthPage extends StatelessWidget {
   const FifthPage({super.key});
@@ -48,7 +49,9 @@ class FifthPage extends StatelessWidget {
             right: 16.0,
             child: TextButton(
               onPressed: () {
-                // Handle 'Skip' button press
+                 Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SignUp() ));// Handle 'Skip' button press
               },
               child: Text(
                 'Skip',

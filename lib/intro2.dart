@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Signup.dart';
 import 'intro3.dart';
 
 class ThirdPage extends StatelessWidget {
@@ -22,7 +23,10 @@ class ThirdPage extends StatelessWidget {
             right: 16.0,
             child: TextButton(
               onPressed: () {
-                // Handle 'Skip' button press
+                 Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SignUp() ));// Handle icon button press
+                   
               },
               child: const Text(
                 'Skip',
