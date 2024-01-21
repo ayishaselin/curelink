@@ -1,10 +1,16 @@
  import 'package:flutter/material.dart';
+import 'package:flutter_application_1/verify.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'Signin.dart';
 
-class SignUp extends StatelessWidget {
+class SignUp extends StatefulWidget {
   const SignUp({Key? key});
 
+  @override
+  State<SignUp> createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     double statusBarHeight = MediaQuery.of(context).padding.top;
@@ -162,14 +168,19 @@ class SignUp extends StatelessWidget {
               const SizedBox(height: 0.01),
               Row(
                 children: [
-                  Checkbox(
-                    value: agreedToTerms,
-                    onChanged: (value) {
-                      // Update the 'agreedToTerms' variable when the checkbox state changes
-                      // You can use this value when the user attempts to sign in
-                      agreedToTerms = value ?? false;
-                    },
-                  ),
+                     StatefulBuilder(
+                     builder: (context, setState) {
+                       return Checkbox(
+                        value: agreedToTerms,
+                        onChanged: (value) {
+                          setState(() {
+                            // Update the 'agreedToTerms' variable when the checkbox state changes
+                            agreedToTerms = value ?? false;
+                          });
+                        },
+                                         );
+                     }
+                   ),
                   const Text(
                     'Agree with',
                     style: TextStyle(
@@ -180,7 +191,7 @@ class SignUp extends StatelessWidget {
                   const SizedBox(width: 5),
                   TextButton(
                     onPressed: () {
-                      // Handle "Forgot Password?" text button press
+                      
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
@@ -202,7 +213,9 @@ class SignUp extends StatelessWidget {
               const SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: () {
-                  
+                  Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const EmailVerificationPage(email: 'email',) ));
                   // Handle sign-in logic here
                 },
                 child: Text('Sign Up', style: GoogleFonts.inter(color: Colors.white)),
