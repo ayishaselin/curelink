@@ -1,5 +1,7 @@
-import 'dart:io';
+import 'dart:io';//will be using when the image comes
+
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/location1.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Profile extends StatefulWidget {
@@ -144,7 +146,9 @@ class _ProfileState extends State<Profile> {
                  const SizedBox(height: 40.0),
                 ElevatedButton(
                 onPressed: () {
-                  
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Location()));
                   // Handle sign-in logic here
                 },
                 child: Text('Complete your profile', style: GoogleFonts.inter(color: Colors.white)),
@@ -166,5 +170,5 @@ class _ProfileState extends State<Profile> {
         ));
                       
            
-          ;  }
+            }
 }
