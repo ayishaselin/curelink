@@ -2,6 +2,8 @@
 import 'package:flutter_application_1/Signin.dart';
  import 'intro2.dart';
  import 'package:google_fonts/google_fonts.dart';
+ import 'package:firebase_core/firebase_core.dart';
+
  
  
 
