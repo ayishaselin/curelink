@@ -1,4 +1,5 @@
  import 'package:flutter/material.dart';
+import 'package:flutter_application_1/terms.dart';
 import 'package:flutter_application_1/verify.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'Signin.dart';
@@ -191,7 +192,9 @@ class _SignUpState extends State<SignUp> {
                   const SizedBox(width: 5),
                   TextButton(
                     onPressed: () {
-                      
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Terms()));
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
