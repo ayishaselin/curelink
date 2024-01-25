@@ -2,6 +2,7 @@
 import 'package:flutter_application_1/profilecomp.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+
 class EmailVerificationPage extends StatefulWidget {
   final String email;
 

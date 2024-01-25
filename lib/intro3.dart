@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Signup.dart';
 import 'intro4.dart';
+// import 'package:firebase_core/firebase_core.dart';
+
 
 class ForthPage extends StatelessWidget {
   const ForthPage({super.key});

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Signup.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+
 class Signin extends StatelessWidget {
   const Signin({Key? key});
 
@@ -248,7 +249,7 @@ class Signin extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
               ],
             ),
           ],

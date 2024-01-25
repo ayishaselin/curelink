@@ -3,8 +3,9 @@ import 'package:flutter_application_1/terms.dart';
 import 'package:flutter_application_1/verify.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'Signin.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+//import 'package:firebase_auth/firebase_auth.dart';
 
+ 
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key});
