@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Signup.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -138,7 +139,7 @@ class Signin extends StatelessWidget {
                 minimumSize: const Size(380, 0),
               ),
             ),
-            const SizedBox(height: 35),
+                      const SizedBox(height: 35),
             const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -247,6 +248,7 @@ class Signin extends StatelessWidget {
                     ),
                   ),
                 ),
+                
               ],
             ),
           ],
