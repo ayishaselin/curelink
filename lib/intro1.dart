@@ -17,6 +17,7 @@ class SecondPage extends StatelessWidget {
        
       body: 
         Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
              Container(

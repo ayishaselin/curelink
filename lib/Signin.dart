@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Signup.dart';
+import 'package:flutter_application_1/navigationbar.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
@@ -124,7 +125,9 @@ class Signin extends StatelessWidget {
             const SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: () {
-                // Handle sign-in logic here
+                Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Navigation()));
               },
               child: Text('Sign In', style: GoogleFonts.inter(color: Colors.white)),
               style: ElevatedButton.styleFrom(
