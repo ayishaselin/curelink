@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:location/location.dart';
+
 
 class Location extends StatelessWidget {
   const Location({super.key});
@@ -49,6 +51,46 @@ class Location extends StatelessWidget {
                     fontWeight: FontWeight.normal,
                   ),
                 ),
+                const SizedBox(height: 25.0),
+            ElevatedButton(
+              onPressed: () {
+                
+              },
+              child: Text('Allow Location Access', style: GoogleFonts.inter(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(15),
+                backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(40.0),
+                ),
+                minimumSize: const Size(350, 0),
+              ),
+            ),
+            const SizedBox(height: 25.0),
+            TextButton(
+                  onPressed: () {
+                     
+                    // Handle "Sign Up" text button press
+                  },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    ' Enter Location Manually',
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ),
+
           ],
             ),
       ));

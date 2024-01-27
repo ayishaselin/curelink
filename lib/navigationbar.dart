@@ -1,4 +1,5 @@
  import 'package:flutter/material.dart';
+ 
 
 class Navigation extends StatefulWidget {
   const Navigation({Key? key}) : super(key: key);
@@ -21,6 +22,8 @@ class _NavigationState extends State<Navigation> {
           });
         },
         currentIndex: myIndex,
+        selectedItemColor: Colors.blue, // Set the color for the selected icon
+  unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
