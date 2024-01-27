@@ -54,7 +54,7 @@ class SecondPage extends StatelessWidget {
                 ),
                  shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40.0), // Rounded edges
-              ),minimumSize: const Size(380, 0),
+              ),minimumSize: const Size(350, 0),
 
               ),
             ),

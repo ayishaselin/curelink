@@ -148,7 +148,7 @@ class _ProfileState extends State<Profile> {
                 onPressed: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => Location()));
+                      MaterialPageRoute(builder: (context) => LocationScreen()));
                   // Handle sign-in logic here
                 },
                 child: Text('Complete your profile', style: GoogleFonts.inter(color: Colors.white)),
