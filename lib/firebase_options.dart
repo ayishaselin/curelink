@@ -49,6 +49,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '443438025400',
     projectId: 'curelink-40d68',
     authDomain: 'curelink-40d68.firebaseapp.com',
+    databaseURL: 'https://curelink-40d68-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'curelink-40d68.appspot.com',
   );
 
@@ -57,6 +58,7 @@ class DefaultFirebaseOptions {
     appId: '1:443438025400:android:f889d880712bdcc216424d',
     messagingSenderId: '443438025400',
     projectId: 'curelink-40d68',
+    databaseURL: 'https://curelink-40d68-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'curelink-40d68.appspot.com',
   );
 
@@ -65,6 +67,7 @@ class DefaultFirebaseOptions {
     appId: '1:443438025400:ios:e2308bba70f69d0d16424d',
     messagingSenderId: '443438025400',
     projectId: 'curelink-40d68',
+    databaseURL: 'https://curelink-40d68-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'curelink-40d68.appspot.com',
     iosBundleId: 'com.example.flutterApplication1',
   );
@@ -74,6 +77,7 @@ class DefaultFirebaseOptions {
     appId: '1:443438025400:ios:20064b73f9f519c116424d',
     messagingSenderId: '443438025400',
     projectId: 'curelink-40d68',
+    databaseURL: 'https://curelink-40d68-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'curelink-40d68.appspot.com',
     iosBundleId: 'com.example.flutterApplication1.RunnerTests',
   );

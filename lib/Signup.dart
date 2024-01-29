@@ -3,9 +3,8 @@ import 'package:flutter_application_1/terms.dart';
 import 'package:flutter_application_1/verify.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'Signin.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
-
- 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'location1.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key});
@@ -15,10 +14,17 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  final _auth = FirebaseAuth.instance;
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+  bool showSpinner = false;
+  bool agreedToTerms = false;
+
   @override
   Widget build(BuildContext context) {
     double statusBarHeight = MediaQuery.of(context).padding.top;
-    bool agreedToTerms = false; // Add this variable to track whether the user agreed to terms
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -53,7 +59,6 @@ class _SignUpState extends State<SignUp> {
                 ),
               ),
               const SizedBox(height: 16.0),
-              // Username TextField
               Container(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,15 +77,23 @@ class _SignUpState extends State<SignUp> {
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child: const TextField(
-                        decoration: InputDecoration(
+                      child: TextField(
+                        controller: nameController,
+                        decoration: const InputDecoration(
                           hintText: 'Enter your name',
                           hintStyle: TextStyle(color: Colors.grey),
                           border: InputBorder.none,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16.0),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
                       'Email',
                       style: GoogleFonts.inter(
@@ -95,8 +108,9 @@ class _SignUpState extends State<SignUp> {
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child: const TextField(
-                        decoration: InputDecoration(
+                      child: TextField(
+                        controller: emailController,
+                        decoration: const InputDecoration(
                           hintText: 'Enter your email',
                           hintStyle: TextStyle(color: Colors.grey),
                           border: InputBorder.none,
@@ -107,7 +121,6 @@ class _SignUpState extends State<SignUp> {
                 ),
               ),
               const SizedBox(height: 16.0),
-              // Password TextField
               Container(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,9 +139,10 @@ class _SignUpState extends State<SignUp> {
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child: const TextField(
-                        obscureText: true, // Hide the password
-                        decoration: InputDecoration(
+                      child: TextField(
+                        controller: passwordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
                           hintText: 'Enter your password',
                           hintStyle: TextStyle(color: Colors.grey),
                           border: InputBorder.none,
@@ -157,9 +171,10 @@ class _SignUpState extends State<SignUp> {
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child: const TextField(
-                        obscureText: true, // Hide the password
-                        decoration: InputDecoration(
+                      child: TextField(
+                        controller: confirmPasswordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
                           hintText: 'Re-enter your password',
                           hintStyle: TextStyle(color: Colors.grey),
                           border: InputBorder.none,
@@ -172,19 +187,18 @@ class _SignUpState extends State<SignUp> {
               const SizedBox(height: 0.01),
               Row(
                 children: [
-                     StatefulBuilder(
-                     builder: (context, setState) {
-                       return Checkbox(
+                  StatefulBuilder(
+                    builder: (context, setState) {
+                      return Checkbox(
                         value: agreedToTerms,
                         onChanged: (value) {
                           setState(() {
-                            // Update the 'agreedToTerms' variable when the checkbox state changes
                             agreedToTerms = value ?? false;
                           });
                         },
-                                         );
-                     }
-                   ),
+                      );
+                    },
+                  ),
                   const Text(
                     'Agree with',
                     style: TextStyle(
@@ -196,13 +210,14 @@ class _SignUpState extends State<SignUp> {
                   TextButton(
                     onPressed: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Terms()));
+                        context,
+                        MaterialPageRoute(builder: (context) => Terms()),
+                      );
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap, 
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text(
                       'Terms and conditions',
@@ -218,26 +233,36 @@ class _SignUpState extends State<SignUp> {
               ),
               const SizedBox(height: 20.0),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const EmailVerificationPage(email: 'email',) ));
-                  // Handle sign-in logic here
-                },
-                child: Text('Sign Up', style: GoogleFonts.inter(color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(15),
-                  backgroundColor: const Color.fromARGB(255, 1, 101, 252),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(40.0),
-                  ),
-                  minimumSize: const Size(380, 0),
-                ),
-              ),
+  onPressed: () async {
+    try {
+      await _auth.createUserWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LocationScreen()),
+      );
+    } catch (e) {
+      print(e);
+      // Handle errors here, e.g., show an error message
+    }
+  },
+  child: Text('Sign Up', style: GoogleFonts.inter(color: Colors.white)),
+  style: ElevatedButton.styleFrom(
+    padding: const EdgeInsets.all(15),
+    backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+    textStyle: const TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.normal,
+    ),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(40.0),
+    ),
+    minimumSize: const Size(380, 0),
+  ),
+),
+
               const SizedBox(height: 10),
               const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -275,7 +300,7 @@ class _SignUpState extends State<SignUp> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
                       child: Image.asset(
-                        'images/apple.png', // Replace with your image asset path
+                        'images/apple.png',
                         height: 50,
                         width: 50,
                       ),
@@ -288,7 +313,7 @@ class _SignUpState extends State<SignUp> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
                       child: Image.asset(
-                        'images/google.png', // Replace with your image asset path
+                        'images/google.png',
                         height: 50,
                         width: 50,
                       ),
@@ -301,7 +326,7 @@ class _SignUpState extends State<SignUp> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
                       child: Image.asset(
-                        'images/facebook.png', // Replace with your image asset path
+                        'images/facebook.png',
                         height: 50,
                         width: 50,
                       ),
@@ -325,28 +350,26 @@ class _SignUpState extends State<SignUp> {
                     width: 0,
                   ),
                   TextButton(
-                
-                   onPressed: () {
-                Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Signin() ));// Handle "Sign in" text button press
-                },
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero, // Reduces internal padding to zero
-                  minimumSize:
-                      Size.zero, // Reduces the minimum size constraints
-                  tapTargetSize: MaterialTapTargetSize
-                      .shrinkWrap, // Reduces the tap target size
-                ),
-                child: Text(
-                  'Sign in.',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Colors.blue,
-                    fontWeight: FontWeight.normal,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Signin()),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      ' Sign in.',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
                   ),
-                ),
-              ),
                 ],
               ),
             ],

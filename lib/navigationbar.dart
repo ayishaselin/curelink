@@ -13,9 +13,7 @@ class _NavigationState extends State<Navigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(getTitle(myIndex)),
-      ),
+       
       body: getBody(myIndex),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
@@ -114,6 +112,99 @@ class ForumScreen extends StatelessWidget {
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
+ 
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Profile'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: AssetImage('assets/profile_picture.jpg'), // Replace with your profile picture
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Name: John Doe', // Replace with user's name
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Email: john.doe@example.com', // Replace with user's email
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // Implement navigation to edit profile page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EditProfilePage()),
+                );
+              },
+              child: Text('Edit Profile'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EditProfilePage extends StatefulWidget {
+  @override
+  _EditProfilePageState createState() => _EditProfilePageState();
+}
+
+class _EditProfilePageState extends State<EditProfilePage> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit Profile'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Edit Your Profile',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: 'Name'),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(labelText: 'Email'),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // Implement profile update logic
+                // Update user details using nameController.text and emailController.text
+                // You might want to add validation and error handling here
+                Navigator.pop(context); // Return to the profile page after editing
+              },
+              child: Text('Save Changes'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -121,4 +212,3 @@ class ProfileScreen extends StatelessWidget {
       body: Center(child: Text('Profile Content')),
     );
   }
-}

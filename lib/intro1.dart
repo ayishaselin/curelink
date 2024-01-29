@@ -79,7 +79,7 @@ class SecondPage extends StatelessWidget {
                    onPressed: () {
                 Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const Signin() ));// Handle "Sign in" text button press
+      MaterialPageRoute(builder: (context) => Signin() ));// Handle "Sign in" text button press
                 },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero, // Reduces internal padding to zero
