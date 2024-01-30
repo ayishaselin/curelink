@@ -5,6 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'Signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'location1.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+//import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key});
@@ -15,12 +20,103 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   bool showSpinner = false;
   bool agreedToTerms = false;
+
+  // Function to create a new user and store user data in Firestore
+  Future<void> signUpAndStoreUserData(BuildContext context) async {
+    try {
+      // Create user with email and password
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+
+      // Store additional user data in Firestore
+      await _firestore.collection('USER').doc(userCredential.user!.uid).set({
+        'Name': nameController.text,
+        'Email': emailController.text,
+        // Add other fields as needed
+      });
+
+      // Navigate to the next screen or perform other actions after successful sign-up
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LocationScreen()),
+      );
+    } catch (e) {
+      // Handle sign-up errors
+      print('Sign-up failed: $e');
+
+      // Display a snackbar with the error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Sign-up failed: $e'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+
+  //apple signup
+   Future<void> signInWithApple(BuildContext context) async {
+    try {
+      final result = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final AuthCredential credential = OAuthProvider('apple.com').credential(
+        idToken: result.identityToken,
+        accessToken: result.authorizationCode,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      // User signed in with Apple successfully, navigate or perform other actions.
+    } catch (e) {
+      print(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Apple sign-in failed: ${e.toString()}'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+//google signup
+  Future<void> signInWithGoogle(BuildContext context) async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      // User signed in with Google successfully, navigate or perform other actions.
+    } catch (e) {
+      print(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google sign-in failed: ${e.toString()}'),
+          duration:  const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -233,20 +329,22 @@ class _SignUpState extends State<SignUp> {
               ),
               const SizedBox(height: 20.0),
               ElevatedButton(
-  onPressed: () async {
-    try {
-      await _auth.createUserWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LocationScreen()),
-      );
-    } catch (e) {
-      print(e);
+  onPressed:()  {
+   // try {
+    //  await _auth.createUserWithEmailAndPassword(
+      //  email: emailController.text,
+      //  password: passwordController.text,
+    //  );
+     // Navigator.pushReplacement(
+       // context,
+      //  MaterialPageRoute(builder: (context) => const LocationScreen()),
+     // );
+    //} catch (e) {
+    //  print(e);
       // Handle errors here, e.g., show an error message
-    }
+  //  }
+ // },
+     signUpAndStoreUserData(context);
   },
   child: Text('Sign Up', style: GoogleFonts.inter(color: Colors.white)),
   style: ElevatedButton.styleFrom(
@@ -294,8 +392,8 @@ class _SignUpState extends State<SignUp> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   InkWell(
-                    onTap: () {
-                      // Handle click on the image button
+                    onTap: () async{
+                      signInWithApple(context);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
@@ -307,8 +405,9 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                   InkWell(
-                    onTap: () {
-                      // Handle click on the image button
+                    onTap: () async{
+                      
+                        await signInWithGoogle(context);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
@@ -322,6 +421,7 @@ class _SignUpState extends State<SignUp> {
                   InkWell(
                     onTap: () {
                       // Handle click on the image button
+                     
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),

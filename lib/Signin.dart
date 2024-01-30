@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Signup.dart';
 import 'package:flutter_application_1/navigationbar.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+
 
 class Signin extends StatelessWidget {
   Signin({Key? key});
@@ -31,6 +34,59 @@ class Signin extends StatelessWidget {
       );
     }
   }
+  //apple signup
+   Future<void> signInWithApple(BuildContext context) async {
+    try {
+      final result = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final AuthCredential credential = OAuthProvider('apple.com').credential(
+        idToken: result.identityToken,
+        accessToken: result.authorizationCode,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      // User signed in with Apple successfully, navigate or perform other actions.
+    } catch (e) {
+      print(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Apple sign-in failed: ${e.toString()}'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+//google signup
+  Future<void> signInWithGoogle(BuildContext context) async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      // User signed in with Google successfully, navigate or perform other actions.
+    } catch (e) {
+      print(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google sign-in failed: ${e.toString()}'),
+          duration:  const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +271,7 @@ class Signin extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: () {
-                      // Handle click on the image button
+                      signInWithApple(context);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
@@ -227,8 +283,8 @@ class Signin extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: () {
-                      // Handle click on the image button
+                    onTap: () async{
+                       await signInWithGoogle(context);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),

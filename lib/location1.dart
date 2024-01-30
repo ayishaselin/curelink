@@ -1,9 +1,11 @@
- import 'package:flutter/material.dart';
+
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LocationScreen extends StatelessWidget {
-  const LocationScreen({super.key});
+  const LocationScreen({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -86,42 +88,57 @@ class LocationScreen extends StatelessWidget {
     );
   }
 
- Future<void> _getLocation(BuildContext context) async {
-  Location location = new Location();
+  Future<void> _getLocation(BuildContext context) async {
+    Location location = new Location();
 
-  bool _serviceEnabled;
-  PermissionStatus _permissionGranted;
-  LocationData _locationData;
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData _locationData;
 
-  // Check if location service is enabled
-  _serviceEnabled = await location.serviceEnabled();
-  if (!_serviceEnabled) {
-    print("Location service is not enabled. Requesting service...");
-    _serviceEnabled = await location.requestService();
+    // Check if location service is enabled
+    _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
-      print("Location service request denied.");
-      return;
+      print("Location service is not enabled. Requesting service...");
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        print("Location service request denied.");
+        return;
+      }
+    }
+
+    // Check if permissions are granted
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      print("Location permission is denied. Requesting permission...");
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        print("Location permission request denied.");
+        return;
+      }
+    }
+
+    try {
+      _locationData = await location.getLocation();
+      print("Location: ${_locationData.latitude}, ${_locationData.longitude}");
+
+      // Store location data in Firestore
+      await _storeLocation(_locationData.latitude, _locationData.longitude);
+
+      // Here you can handle the location data (e.g., update the state, send to backend, etc.)
+    } catch (e) {
+      print("Failed to get location: $e");
     }
   }
 
-  // Check if permissions are granted
-  _permissionGranted = await location.hasPermission();
-  if (_permissionGranted == PermissionStatus.denied) {
-    print("Location permission is denied. Requesting permission...");
-    _permissionGranted = await location.requestPermission();
-    if (_permissionGranted != PermissionStatus.granted) {
-      print("Location permission request denied.");
-      return;
+  Future<void> _storeLocation(latitude,  longitude) async {
+    try {
+      // Replace 'users' with the collection you created in Firestore
+      await FirebaseFirestore.instance.collection('USER').add({
+        'location': GeoPoint(latitude, longitude),
+      });
+      print('Location stored in Firestore');
+    } catch (e) {
+      print('Failed to store location: $e');
     }
   }
-
-  try {
-    _locationData = await location.getLocation();
-    print("Location: ${_locationData.latitude}, ${_locationData.longitude}");
-    // Here you can handle the location data (e.g., update the state, send to backend, etc.)
-  } catch (e) {
-    print("Failed to get location: $e");
-  }
-} // Function to get current location
-   
 }
