@@ -80,7 +80,9 @@ class _SignUpState extends State<SignUp> {
       );
 
       await FirebaseAuth.instance.signInWithCredential(credential);
-
+      Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LocationScreen()));
       // User signed in with Apple successfully, navigate or perform other actions.
     } catch (e) {
       print(e.toString());
@@ -94,27 +96,39 @@ class _SignUpState extends State<SignUp> {
   }
 
 //google signup
-  Future<void> signInWithGoogle(BuildContext context) async {
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      await FirebaseAuth.instance.signInWithCredential(credential);
+ //google signup
+Future<void> signInWithGoogle(BuildContext context) async {
+  try {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+    await FirebaseAuth.instance.signInWithCredential(credential);
 
-      // User signed in with Google successfully, navigate or perform other actions.
-    } catch (e) {
-      print(e.toString());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Google sign-in failed: ${e.toString()}'),
-          duration:  const Duration(seconds: 3),
-        ),
+    // Check if the user is signed in and navigate to LocationScreen
+    if (FirebaseAuth.instance.currentUser != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LocationScreen()),
       );
+    } else {
+      // Handle the case where the user is not signed in
+      print('User not signed in after Google Sign-In');
     }
+
+  } catch (e) {
+    print(e.toString());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Google sign-in failed: ${e.toString()}'),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
+}
+
 
 
 
