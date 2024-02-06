@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LocationScreen extends StatelessWidget {
   const LocationScreen({Key? key});
@@ -130,15 +131,24 @@ class LocationScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _storeLocation(latitude,  longitude) async {
-    try {
-      // Replace 'users' with the collection you created in Firestore
-      await FirebaseFirestore.instance.collection('USER').add({
+  Future<void> _storeLocation(latitude, longitude) async {
+  try {
+    // Get the current user
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Replace 'USER' with the collection you created in Firestore
+      await FirebaseFirestore.instance.collection('USER').doc(user.uid).update({
         'location': GeoPoint(latitude, longitude),
       });
-      print('Location stored in Firestore');
-    } catch (e) {
-      print('Failed to store location: $e');
+
+      print('Location stored for user ${user.uid} in Firestore');
+    } else {
+      print('No user is currently signed in.');
     }
+  } catch (e) {
+    print('Failed to store location: $e');
   }
+}
+
 }

@@ -28,6 +28,14 @@ class _SignUpState extends State<SignUp> {
   bool showSpinner = false;
   bool agreedToTerms = false;
 
+ @override
+  void initState() {
+    super.initState();
+    
+  }
+
+
+
   // Function to create a new user and store user data in Firestore
   Future<void> signUpAndStoreUserData(BuildContext context) async {
     try {
@@ -36,13 +44,17 @@ class _SignUpState extends State<SignUp> {
         email: emailController.text,
         password: passwordController.text,
       );
+       String userId = userCredential.user!.uid;
+
 
       // Store additional user data in Firestore
-      await _firestore.collection('USER').doc(userCredential.user!.uid).set({
+      await _firestore.collection('USER').doc(userId).set({
         'Name': nameController.text,
         'Email': emailController.text,
+
         // Add other fields as needed
       });
+         
 
       // Navigate to the next screen or perform other actions after successful sign-up
       Navigator.push(
