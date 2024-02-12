@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import  'intro1.dart';
+import 'package:flutter_application_1/location1.dart';
+import 'package:flutter_application_1/intro1.dart';
 
 
 void main() async {
@@ -8,55 +10,76 @@ void main() async {
   await Firebase.initializeApp();
   runApp(MyApp());
 }
- class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
- debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: Colors.lightBlue
-      ),home: HomeScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primaryColor: Colors.lightBlue),
+      home: HomeScreen(),
     );
   }
 }
-  
-class HomeScreen extends StatefulWidget {
-   HomeScreen({super.key});
-   
-   
-  
+
+ 
+
+  class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  
-   @override
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
   void initState() {
     super.initState();
-
-    // Navigate to the second page after a short delay
-    Future.delayed(const Duration(seconds:2), () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => SecondPage()),
-      );
+    // Always show the splash screen for a short delay
+    Future.delayed(const Duration(seconds: 2), () {
+      // Check if the user is signed in
+      User? user = _auth.currentUser;
+      if (user != null) {
+        // User is already signed in, navigate to LocationScreen
+        navigateToLocationScreen();
+      } else {
+        // User is not signed in, navigate to SecondPage
+        navigateToSecondPage();
+      }
     });
   }
-   Widget build(BuildContext context) {
-   
-          return Scaffold(
-            backgroundColor: Colors.blue,
-       body:SafeArea(
-      child: Container(
-        width: double.infinity,
-        height: double.infinity,
-        child: Center(
-          child: Image.asset('images/logo.png'),
+
+  void navigateToLocationScreen() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LocationScreen()),
+    );
+  }
+
+  void navigateToSecondPage() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => SecondPage()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.blue,
+      body: SafeArea(
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          child: Center(
+            child: Image.asset('images/logo.png'), // Replace with your splash screen image
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

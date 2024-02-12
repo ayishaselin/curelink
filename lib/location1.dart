@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/main.dart';
+import 'package:flutter_application_1/navigationbar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -65,24 +67,7 @@ class LocationScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 25.0),
-            TextButton(
-              onPressed: () {
-                // Handle "Enter Location Manually" button press
-              },
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(
-                ' Enter Location Manually',
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  color: Colors.blue,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            ),
+             
           ],
         ),
       ),
@@ -129,6 +114,10 @@ class LocationScreen extends StatelessWidget {
     } catch (e) {
       print("Failed to get location: $e");
     }
+    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Navigation()),
+                      );
   }
 
   Future<void> _storeLocation(latitude, longitude) async {
@@ -143,6 +132,8 @@ class LocationScreen extends StatelessWidget {
       });
 
       print('Location stored for user ${user.uid} in Firestore');
+       
+      
     } else {
       print('No user is currently signed in.');
     }
@@ -150,5 +141,6 @@ class LocationScreen extends StatelessWidget {
     print('Failed to store location: $e');
   }
 }
+ 
 
 }

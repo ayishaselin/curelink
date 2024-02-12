@@ -1,4 +1,5 @@
  import 'package:flutter/material.dart';
+ import 'clinic.dart';
 
 class Navigation extends StatefulWidget {
   const Navigation({Key? key}) : super(key: key);
@@ -64,9 +65,9 @@ class _NavigationState extends State<Navigation> {
   Widget getBody(int index) {
     switch (index) {
       case 0:
-        return const HomeScreen();
+        return const HomeScreens();
       case 1:
-        return const ExploreScreen();
+        return  ClinicScreen();
       case 2:
         return const ForumScreen();
       case 3:
@@ -77,8 +78,8 @@ class _NavigationState extends State<Navigation> {
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class HomeScreens extends StatelessWidget {
+  const HomeScreens({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

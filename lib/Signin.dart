@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Signup.dart';
 import 'package:flutter_application_1/navigationbar.dart';
+import 'package:flutter_application_1/profilecomp.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -64,27 +66,56 @@ class Signin extends StatelessWidget {
   }
 
 //google signup
-  Future<void> signInWithGoogle(BuildContext context) async {
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      await FirebaseAuth.instance.signInWithCredential(credential);
+ //google signup
+//google signup
+Future<void> signInWithGoogle(BuildContext context) async {
+  try {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
 
-      // User signed in with Google successfully, navigate or perform other actions.
-    } catch (e) {
-      print(e.toString());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Google sign-in failed: ${e.toString()}'),
-          duration:  const Duration(seconds: 3),
-        ),
+    // Sign in with the credential
+    await FirebaseAuth.instance.signInWithCredential(credential);
+
+    // Get the signed-in user
+    User? user = FirebaseAuth.instance.currentUser;
+
+    // Check if the user is not null
+    if (user != null) {
+      // Get the user's email and UID
+      String userEmail = user.email ?? '';
+      String userId = user.uid;
+
+      // Store the email in the Firestore collection with the UID as document ID
+      await FirebaseFirestore.instance.collection('USER').doc(userId).set({
+        'Email': userEmail,
+        // Add other fields as needed
+      });
+
+      // Navigate to the Profile screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Profile()),
       );
+    } else {
+      // Handle the case where user is null
+      print('User is null');
     }
+  } catch (e) {
+    print(e.toString());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Google sign-in failed: ${e.toString()}'),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
+}
+
+
 
 
 

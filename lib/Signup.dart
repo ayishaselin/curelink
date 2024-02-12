@@ -24,7 +24,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController();
+  TextEditingController PhoneController = TextEditingController();
   bool showSpinner = false;
   bool agreedToTerms = false;
 
@@ -51,7 +51,7 @@ class _SignUpState extends State<SignUp> {
       await _firestore.collection('USER').doc(userId).set({
         'Name': nameController.text,
         'Email': emailController.text,
-
+        'PhoneNumber': PhoneController.text,
         // Add other fields as needed
       });
          
@@ -248,6 +248,38 @@ Future<void> signInWithGoogle(BuildContext context) async {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
+                      'Phone number',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    const SizedBox(height: 7.0),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: TextField(
+                        controller: PhoneController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter your phone number',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
                       'Password',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.normal,
@@ -265,39 +297,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
                         controller: passwordController,
                         obscureText: true,
                         decoration: const InputDecoration(
-                          hintText: 'Enter your password',
-                          hintStyle: TextStyle(color: Colors.grey),
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Confirm Password',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.normal,
-                        fontSize: 16.0,
-                      ),
-                    ),
-                    const SizedBox(height: 7.0),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: TextField(
-                        controller: confirmPasswordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          hintText: 'Re-enter your password',
+                          hintText: 'password',
                           hintStyle: TextStyle(color: Colors.grey),
                           border: InputBorder.none,
                         ),
