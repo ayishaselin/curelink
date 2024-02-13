@@ -8,7 +8,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LocationScreen extends StatelessWidget {
-  const LocationScreen({Key? key});
+  final String userId;
+  const LocationScreen({Key? key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -114,10 +115,16 @@ class LocationScreen extends StatelessWidget {
     } catch (e) {
       print("Failed to get location: $e");
     }
-    Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Navigation()),
-                      );
+     Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Navigation(
+                  
+                  userId: userId,
+                  
+                ),
+              ),
+            );
   }
 
   Future<void> _storeLocation(latitude, longitude) async {

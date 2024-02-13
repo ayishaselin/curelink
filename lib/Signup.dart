@@ -59,7 +59,7 @@ class _SignUpState extends State<SignUp> {
       // Navigate to the next screen or perform other actions after successful sign-up
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const LocationScreen()),
+        MaterialPageRoute(builder: (context) => const LocationScreen(userId: '',)),
       );
     } catch (e) {
       // Handle sign-up errors
@@ -94,7 +94,7 @@ class _SignUpState extends State<SignUp> {
       await FirebaseAuth.instance.signInWithCredential(credential);
       Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const LocationScreen()));
+      MaterialPageRoute(builder: (context) => const LocationScreen(userId: '',)));
       // User signed in with Apple successfully, navigate or perform other actions.
     } catch (e) {
       print(e.toString());
@@ -123,7 +123,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
     if (FirebaseAuth.instance.currentUser != null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LocationScreen()),
+        MaterialPageRoute(builder: (context) => const LocationScreen(userId: '',)),
       );
     } else {
       // Handle the case where the user is not signed in

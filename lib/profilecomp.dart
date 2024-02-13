@@ -8,7 +8,9 @@ import 'package:flutter_application_1/location1.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Profile extends StatefulWidget {
-  const Profile({super.key});
+  final String userId;
+  const Profile({super.key, required this.userId});
+
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -133,7 +135,7 @@ class _ProfileState extends State<Profile> {
                         // Navigate to the next screen
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => LocationScreen()),
+                          MaterialPageRoute(builder: (context) => LocationScreen(userId: '',)),
                         );
                       } catch (e) {
                         // Handle Firestore save error

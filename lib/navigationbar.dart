@@ -1,8 +1,12 @@
  import 'package:flutter/material.dart';
- import 'clinic.dart';
+import 'package:flutter_application_1/home_page.dart';
+import 'package:flutter_application_1/profile.dart';
+import 'clinic.dart';
 
 class Navigation extends StatefulWidget {
-  const Navigation({Key? key}) : super(key: key);
+  final String userId;
+
+  const Navigation({Key? key, required this.userId}) : super(key: key);
 
   @override
   State<Navigation> createState() => _NavigationState();
@@ -14,8 +18,8 @@ class _NavigationState extends State<Navigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       
       body: getBody(myIndex),
+      
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
           setState(() {
@@ -67,25 +71,14 @@ class _NavigationState extends State<Navigation> {
       case 0:
         return const HomeScreens();
       case 1:
-        return  ClinicScreen();
+        return ClinicScreen();
       case 2:
         return const ForumScreen();
       case 3:
-        return const ProfileScreen();
+        return ProfileScreen(userId: widget.userId);
       default:
         return Container();
     }
-  }
-}
-
-class HomeScreens extends StatelessWidget {
-  const HomeScreens({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text('Home Content')),
-    );
   }
 }
 
@@ -107,51 +100,6 @@ class ForumScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(child: Text('Forum Content')),
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
- 
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage('assets/profile_picture.jpg'), // Replace with your profile picture
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Name: John Doe', // Replace with user's name
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Email: john.doe@example.com', // Replace with user's email
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Implement navigation to edit profile page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditProfilePage()),
-                );
-              },
-              child: Text('Edit Profile'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -207,9 +155,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 }
 
+class ProfileContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(child: Text('Profile Content')),
     );
   }
+}

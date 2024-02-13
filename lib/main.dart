@@ -56,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void navigateToLocationScreen() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => LocationScreen()),
+      MaterialPageRoute(builder: (context) => LocationScreen(userId: '',)),
     );
   }
 

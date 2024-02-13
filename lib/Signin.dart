@@ -3,9 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Signup.dart';
 import 'package:flutter_application_1/navigationbar.dart';
+import 'package:flutter_application_1/profile.dart';
 import 'package:flutter_application_1/profilecomp.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'location1.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 
@@ -21,6 +23,10 @@ class Signin extends StatelessWidget {
         email: email,
         password: password,
       );
+      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LocationScreen(userId: '',)),
+                      );
 
       // User signed in successfully, you can navigate to the next screen or perform other actions.
     } catch (e) {
@@ -97,9 +103,15 @@ Future<void> signInWithGoogle(BuildContext context) async {
 
       // Navigate to the Profile screen
       Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Profile()),
-      );
+              context,
+              MaterialPageRoute(
+                builder: (context) => Profile(
+                  
+                  userId: userId,
+                  
+                ),
+              ),
+            );
     } else {
       // Handle the case where user is null
       print('User is null');
@@ -247,10 +259,10 @@ Future<void> signInWithGoogle(BuildContext context) async {
                 onPressed: () async {
                   // Call the signInWithEmailAndPassword method
                   await signInWithEmailAndPassword(context, _emailController.text, _passwordController.text);
-                   Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Navigation()),
-                      );
+                  //  Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(builder: (context) => Navigation()),
+                  //     );
                 },
                 child: Text('Sign In', style: GoogleFonts.inter(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
