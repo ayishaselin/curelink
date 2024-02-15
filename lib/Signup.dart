@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/profilecomp.dart';
 import 'package:flutter_application_1/terms.dart';
 import 'package:flutter_application_1/verify.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -59,7 +60,7 @@ class _SignUpState extends State<SignUp> {
       // Navigate to the next screen or perform other actions after successful sign-up
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const LocationScreen(userId: '',)),
+        MaterialPageRoute(builder: (context) => const Profile(userId: '',)),
       );
     } catch (e) {
       // Handle sign-up errors
