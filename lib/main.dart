@@ -1,8 +1,9 @@
  import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+ 
+import 'package:flutter_application_1/Intro_pages/intro1.dart';
 import 'package:flutter_application_1/location1.dart';
-import 'package:flutter_application_1/intro1.dart';
 
 
 void main() async {

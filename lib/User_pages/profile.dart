@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_application_1/Signin.dart';
+import 'package:flutter_application_1/Signinup/Signin.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -141,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 400.0),
+              const SizedBox(height: 330.0),
               ElevatedButton(
                 onPressed: () async {
                    
@@ -151,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // You can replace 'LoginScreen' with the screen you want to navigate to after sign-out
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Signin()));
+        MaterialPageRoute(builder: (context) => Signin(userId:widget.userId)));
                 },
                 child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
                 style: ElevatedButton.styleFrom(

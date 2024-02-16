@@ -5,13 +5,13 @@ class ClinicData {
   final String image;
   final Timestamp time;
 
-  ClinicData({required this.image, required this.time});
+  ClinicData({required this.image, required this.time, required String userId});
 
   // Factory method to create ClinicData from a Firestore document
   factory ClinicData.fromDocument(DocumentSnapshot doc) {
     return ClinicData(
       image: doc['image'],
-      time: doc['time'],
+      time: doc['time'], userId: '',
     );
   }
 }

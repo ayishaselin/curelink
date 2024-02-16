@@ -1,6 +1,7 @@
  import 'package:flutter/material.dart';
-import 'package:flutter_application_1/home_page.dart';
-import 'package:flutter_application_1/profile.dart';
+import 'package:flutter_application_1/User_pages/home_page.dart';
+import 'package:flutter_application_1/User_pages/profile.dart';
+import 'package:flutter_application_1/User_pages/search.dart';
 import 'clinic.dart';
 
 class Navigation extends StatefulWidget {
@@ -27,7 +28,7 @@ class _NavigationState extends State<Navigation> {
           });
         },
         currentIndex: myIndex,
-        selectedItemColor: Colors.blue,
+        selectedItemColor:  Color.fromARGB(255, 1, 101, 252),
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
@@ -71,7 +72,7 @@ class _NavigationState extends State<Navigation> {
       case 0:
         return const HomeScreens();
       case 1:
-        return ClinicScreen();
+        return SearchScreen();
       case 2:
         return const ForumScreen();
       case 3:

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/navigationbar.dart';
+import 'package:flutter_application_1/User_pages/navigationbar.dart';
 
 import 'drprofile.dart';
 
@@ -58,7 +58,7 @@ class _DoctorScreenState extends State<DoctorScreen> {
       case 0:
         return const ForumScreen();
       case 1:
-        return  ForumScreen();
+        return  DoctorProfile(userId: '',);
        
       default:
         return Container();

@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/profilecomp.dart';
+import 'package:flutter_application_1/Signinup/profilecomp.dart';
+import 'package:flutter_application_1/location1.dart';
 import 'package:flutter_application_1/terms.dart';
 import 'package:flutter_application_1/verify.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'Signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'location1.dart';
+ 
 import 'package:google_sign_in/google_sign_in.dart';
 //import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -426,7 +427,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Signin()),
+                        MaterialPageRoute(builder: (context) => Signin(userId: '',)),
                       );
                     },
                     style: TextButton.styleFrom(

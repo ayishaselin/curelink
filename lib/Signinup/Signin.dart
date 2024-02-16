@@ -1,20 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Signup.dart';
-import 'package:flutter_application_1/admin.dart';
-import 'package:flutter_application_1/navigationbar.dart';
-import 'package:flutter_application_1/profile.dart';
-import 'package:flutter_application_1/profilecomp.dart';
+import 'package:flutter_application_1/Signinup/Signup.dart';
+import 'package:flutter_application_1/Admin_pages/admin.dart';
+import 'package:flutter_application_1/User_pages/clinic.dart';
+import 'package:flutter_application_1/User_pages/navigationbar.dart';
+import 'package:flutter_application_1/User_pages/profile.dart';
+import 'package:flutter_application_1/Signinup/profilecomp.dart';
+import 'package:flutter_application_1/location1.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'doctorscreen.dart';
-import 'location1.dart';
+import '../Doctor_pages/doctorscreen.dart';
+ 
  
 
 
 class Signin extends StatelessWidget {
-  Signin({Key? key});
+  final String userId;
+  Signin({Key? key, required this.userId});
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -55,7 +58,13 @@ class Signin extends StatelessWidget {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => DoctorScreen(userId: userId)),
-        );
+        );}
+        else if (userType == 'Clinic') {
+      // Navigate to the ClinicScreen for Clinic type
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ClinicScreen()),
+      );
       } else {
         // Navigate to the LocationScreen for other user types
         Navigator.pushReplacement(
@@ -337,7 +346,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
                     ),
                   ),
                   
-                ],
+                ]
               ),
               const SizedBox(height: 35),
 
