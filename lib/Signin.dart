@@ -8,6 +8,7 @@ import 'package:flutter_application_1/profile.dart';
 import 'package:flutter_application_1/profilecomp.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'doctorscreen.dart';
 import 'location1.dart';
  
 
@@ -18,41 +19,65 @@ class Signin extends StatelessWidget {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  Future<void> signInWithEmailAndPassword(BuildContext context, String email, String password) async {
-     try {
-      if (email == 'admin' && password == '123456') {
-        // Navigate to the Admin page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => AdminPage()),
-        );
-        return;
-      }
-
-      // If not admin credentials, proceed with regular sign-in
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // User signed in successfully, navigate to the LocationScreen
+   Future<void> signInWithEmailAndPassword(BuildContext context, String email, String password) async {
+  try {
+    if (email == 'admin' && password == '123456') {
+      // Navigate to the Admin page
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LocationScreen(userId: '',)),
+        MaterialPageRoute(builder: (context) => AdminPage()),
       );
-    } catch (e) {
-      // Handle sign-in errors
-      print(e.toString());
-
-      // Display a snackbar with the error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Sign-in failed: ${e.toString()}'),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      return;
     }
+
+    // If not admin credentials, proceed with regular sign-in
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    // User signed in successfully, get user information
+    User? user = FirebaseAuth.instance.currentUser;
+
+    // Check if the user is not null
+    if (user != null) {
+      // Get the user's email and UID
+      String userEmail = user.email ?? '';
+      String userId = user.uid;
+
+      // Check the user type
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('USER').doc(userId).get();
+      String userType = userSnapshot['userType'] ?? '';
+
+      // Navigate based on the user type
+      if (userType == 'Doctor') {
+        // Navigate to the DoctorScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DoctorScreen(userId: userId)),
+        );
+      } else {
+        // Navigate to the LocationScreen for other user types
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LocationScreen(userId: userId)),
+        );
+      }
+    }
+  } catch (e) {
+    // Handle sign-in errors
+    print(e.toString());
+
+    // Display a snackbar with the error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Sign-in failed: ${e.toString()}'),
+        duration: Duration(seconds: 3),
+      ),
+    );
   }
+}
+
 
   //apple signup
     

@@ -1,107 +1,52 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_application_1/Signin.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class ProfileScreen extends StatefulWidget {
-  final String userId;
 
-  ProfileScreen({Key? key, required this.userId}) : super(key: key);
+class DoctorProfile extends StatefulWidget {
+  const DoctorProfile({super.key});
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  State<DoctorProfile> createState() => DoctorProfileState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+class DoctorProfileState extends State<DoctorProfile> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController specializationController = TextEditingController();
+  final TextEditingController bioController = TextEditingController();
+  final TextEditingController timingController = TextEditingController();
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  String _profilePicUrl = '';
-  Key _circleAvatarKey = UniqueKey();
-  String _fullName = '';
-  String _Email = '';
-  bool _userDataLoaded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Call _fetchUserData to fetch user data
-    _fetchUserData();
-  }
-
-  Future<void> _fetchUserData() async {
-    print("entered function");
-    try {
-      // Fetch currently authenticated user
-      User? currentUser = _auth.currentUser;
-
-      if (currentUser != null) {
-        // Fetch user document using the current user's ID
-        final userDoc =
-            await _firestore.collection('USER').doc(currentUser.uid).get();
-
-        // Update _fullName and _Email
-        setState(() {
-          _fullName = userDoc['Name'] ?? 'Name not found';
-          _Email = userDoc['Email'] ?? 'Email not found';
-        });
-
-        // Check if profilePicUrl field exists before setting _profilePicUrl
-        if (userDoc.data()!.containsKey('profilePicUrl')) {
-          setState(() {
-            _profilePicUrl = userDoc['profilePicUrl'];
-          });
-        }
-
-        // Set _userDataLoaded to true after fetching data
-        setState(() {
-          _userDataLoaded = true;
-        });
-      } else {
-        print("No user signed in.");
-      }
-    } catch (e) {
-      print('Error fetching user data: $e');
-    }
-  }
-
+  String profilePicUrl = '';
+  Key circleAvatarKey = UniqueKey();
+  
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Profile'),
-         
+        title: const Text('Doctor Profile'),
       ),
       body: SingleChildScrollView(
-        child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              const SizedBox(height: 24.0),
-              Text(
-                'My Profile',
-                style: GoogleFonts.inter(
-                  fontSize: 28.0,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              GestureDetector(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+               GestureDetector(
                 onTap: () async {
                   await _pickAndCropImage();
                 },
                 child: Stack(
                   children: [
                     CircleAvatar(
-                      key: _circleAvatarKey,
                       radius: 50.0,
                       backgroundImage: _profilePicUrl.isNotEmpty
                           ? CachedNetworkImageProvider(_profilePicUrl)
@@ -127,33 +72,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16.0),
-              Column(
-                children: <Widget>[
-                  Text(
-                    _fullName.isNotEmpty ? _fullName : 'Name not found',
-                    style: GoogleFonts.nunitoSans(
-                        fontSize: 20, fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    _Email,
-                    style: GoogleFonts.nunitoSans(fontSize: 18),
-                  ),
-                ],
+              // Name TextField
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: 'Name'),
               ),
-              const SizedBox(height: 400.0),
+              const SizedBox(height: 16.0),
+
+              // Specialization TextField
+              TextField(
+                controller: specializationController,
+                decoration: InputDecoration(labelText: 'Specialization'),
+              ),
+              const SizedBox(height: 16.0),
+
+              // Bio TextField
+              TextField(
+                controller: bioController,
+                decoration: InputDecoration(labelText: 'Bio'),
+                maxLines: 4,
+              ),
+              const SizedBox(height: 16.0),
+
+              // Timing TextField
+              TextField(
+                controller: timingController,
+                decoration: InputDecoration(labelText: 'Timing'),
+              ),
+              const SizedBox(height: 16.0),
+              
+
+
               ElevatedButton(
                 onPressed: () async {
-                   
-             await _auth.signOut();
-
-      // Navigate to the login or sign-up screen
-      // You can replace 'LoginScreen' with the screen you want to navigate to after sign-out
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Signin()));
+                    await saveDoctorInformation();
                 },
-                child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
+                child: Text('Save', style: GoogleFonts.inter(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.all(15),
                   backgroundColor: const Color.fromARGB(255, 1, 101, 252),
@@ -167,6 +121,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   minimumSize: const Size(380, 0),
                 ),
               ), 
+
+
+
+ 
+
+
+
             ],
           ),
         ),
@@ -174,7 +135,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<void> _pickAndCropImage() async {
+
+  Future<void> saveDoctorInformation() async {
+  try {
+    // Get the current user from Firebase Authentication
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      // Use the UID of the current user as the document ID in the DOCTOR collection
+      String userId = currentUser.uid;
+
+      // Get the values from the text controllers
+      String name = nameController.text;
+      String specialization = specializationController.text;
+      String bio = bioController.text;
+      String timing = timingController.text;
+
+      // Save the doctor information to Firestore in the DOCTOR collection
+      await FirebaseFirestore.instance.collection('DOCTOR').doc(userId).set({
+        'Name': name,
+        'Specialization': specialization,
+        'Bio': bio,
+        'Timing': timing,
+        // Add other fields as needed
+      });
+
+      // Optionally, show a success message to the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Doctor information saved successfully.'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } else {
+      print('No user signed in.');
+    }
+  } catch (e) {
+    // Handle error
+    print('Error saving doctor information: $e');
+    // Optionally, show an error message to the user
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error saving doctor information. Please try again.'),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+  }}
+   
+    Future<void> _pickAndCropImage() async {
     final picker = ImagePicker();
     try {
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
