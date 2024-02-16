@@ -1,76 +1,95 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Signup.dart';
-import 'package:flutter_application_1/navigationbar.dart';
-import 'package:flutter_application_1/profile.dart';
-import 'package:flutter_application_1/profilecomp.dart';
+import 'package:flutter_application_1/Signinup/Signup.dart';
+import 'package:flutter_application_1/Admin_pages/admin.dart';
+import 'package:flutter_application_1/User_pages/clinic.dart';
+import 'package:flutter_application_1/User_pages/navigationbar.dart';
+import 'package:flutter_application_1/User_pages/profile.dart';
+import 'package:flutter_application_1/Signinup/profilecomp.dart';
+import 'package:flutter_application_1/location1.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'location1.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import '../Doctor_pages/doctorscreen.dart';
+ 
+ 
 
 
 class Signin extends StatelessWidget {
-  Signin({Key? key});
+  final String userId;
+  Signin({Key? key, required this.userId});
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  Future<void> signInWithEmailAndPassword(BuildContext context, String email, String password) async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+   Future<void> signInWithEmailAndPassword(BuildContext context, String email, String password) async {
+  try {
+    if (email == 'admin' && password == '123456') {
+      // Navigate to the Admin page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => AdminPage()),
       );
-      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LocationScreen(userId: '',)),
-                      );
-
-      // User signed in successfully, you can navigate to the next screen or perform other actions.
-    } catch (e) {
-      // Handle sign-in errors
-      print(e.toString());
-
-      // Display a snackbar with the error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Sign-in failed: ${e.toString()}'),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      return;
     }
+
+    // If not admin credentials, proceed with regular sign-in
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    // User signed in successfully, get user information
+    User? user = FirebaseAuth.instance.currentUser;
+
+    // Check if the user is not null
+    if (user != null) {
+      // Get the user's email and UID
+      String userEmail = user.email ?? '';
+      String userId = user.uid;
+
+      // Check the user type
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('USER').doc(userId).get();
+      String userType = userSnapshot['userType'] ?? '';
+
+      // Navigate based on the user type
+      if (userType == 'Doctor') {
+        // Navigate to the DoctorScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DoctorScreen(userId: userId)),
+        );}
+        else if (userType == 'Clinic') {
+      // Navigate to the ClinicScreen for Clinic type
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ClinicScreen()),
+      );
+      } else {
+        // Navigate to the LocationScreen for other user types
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LocationScreen(userId: userId)),
+        );
+      }
+    }
+  } catch (e) {
+    // Handle sign-in errors
+    print(e.toString());
+
+    // Display a snackbar with the error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Sign-in failed: ${e.toString()}'),
+        duration: Duration(seconds: 3),
+      ),
+    );
   }
+}
+
+
   //apple signup
-   Future<void> signInWithApple(BuildContext context) async {
-    try {
-      final result = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
-
-      final AuthCredential credential = OAuthProvider('apple.com').credential(
-        idToken: result.identityToken,
-        accessToken: result.authorizationCode,
-      );
-
-      await FirebaseAuth.instance.signInWithCredential(credential);
-
-      // User signed in with Apple successfully, navigate or perform other actions.
-    } catch (e) {
-      print(e.toString());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Apple sign-in failed: ${e.toString()}'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
+    
 //google signup
  //google signup
 //google signup
@@ -312,19 +331,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      signInWithApple(context);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
-                      child: Image.asset(
-                        'images/apple.png', // Replace with your image asset path
-                        height: 50,
-                        width: 50,
-                      ),
-                    ),
-                  ),
+                   
                   InkWell(
                     onTap: () async{
                        await signInWithGoogle(context);
@@ -338,20 +345,8 @@ Future<void> signInWithGoogle(BuildContext context) async {
                       ),
                     ),
                   ),
-                  InkWell(
-                    onTap: () {
-                      // Handle click on the image button
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
-                      child: Image.asset(
-                        'images/facebook.png', // Replace with your image asset path
-                        height: 50,
-                        width: 50,
-                      ),
-                    ),
-                  ),
-                ],
+                  
+                ]
               ),
               const SizedBox(height: 35),
 

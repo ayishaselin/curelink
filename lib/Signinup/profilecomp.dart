@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
+ 
 import 'package:flutter_application_1/location1.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -113,7 +114,7 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                   ),
-        
+                    SizedBox(height: 15.0),
                    Text(
                       'User Type',
                       style: GoogleFonts.inter(
@@ -215,7 +216,7 @@ class _ProfileState extends State<Profile> {
         
                         // Get the currently signed-in user
                         User? user = FirebaseAuth.instance.currentUser;
-        
+                         
                         // Check if the user is not null
                         if (user != null) {
                           try {

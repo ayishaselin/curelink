@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_application_1/Signinup/Signin.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -76,15 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Profile'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await _auth.signOut();
-              Navigator.of(context).pushReplacementNamed('/signin');
-            },
-          ),
-        ],
+         
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -95,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 24.0),
               Text(
                 'My Profile',
-                style: GoogleFonts.nunitoSans(
+                style: GoogleFonts.inter(
                   fontSize: 28.0,
                   fontWeight: FontWeight.w800,
                 ),
@@ -148,14 +141,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 330.0),
               ElevatedButton(
                 onPressed: () async {
-                  await _auth.signOut();
-                  Navigator.of(context).pushReplacementNamed('/signin');
+                   
+             await _auth.signOut();
+
+      // Navigate to the login or sign-up screen
+      // You can replace 'LoginScreen' with the screen you want to navigate to after sign-out
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Signin(userId:widget.userId)));
                 },
-                child: const Text('Sign Out'),
-              ),
+                child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.all(15),
+                  backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(40.0),
+                  ),
+                  minimumSize: const Size(380, 0),
+                ),
+              ), 
             ],
           ),
         ),
