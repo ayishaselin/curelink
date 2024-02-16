@@ -112,7 +112,7 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                   ),
-        
+                    SizedBox(height: 15.0),
                    Text(
                       'User Type',
                       style: GoogleFonts.inter(
@@ -214,7 +214,7 @@ class _ProfileState extends State<Profile> {
         
                         // Get the currently signed-in user
                         User? user = FirebaseAuth.instance.currentUser;
-        
+                         
                         // Check if the user is not null
                         if (user != null) {
                           try {

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/profilecomp.dart';
 import 'package:flutter_application_1/terms.dart';
@@ -77,37 +78,7 @@ class _SignUpState extends State<SignUp> {
   }
 
 
-  //apple signup
-   Future<void> signInWithApple(BuildContext context) async {
-    try {
-      final result = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
-
-      final AuthCredential credential = OAuthProvider('apple.com').credential(
-        idToken: result.identityToken,
-        accessToken: result.authorizationCode,
-      );
-
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LocationScreen(userId: '',)));
-      // User signed in with Apple successfully, navigate or perform other actions.
-    } catch (e) {
-      print(e.toString());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Apple sign-in failed: ${e.toString()}'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
+  
 //google signup
  //google signup
 Future<void> signInWithGoogle(BuildContext context) async {
@@ -264,7 +235,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
                       ),
                       child: TextField(
                         controller: PhoneController,
-                        obscureText: true,
+                        obscureText: false,
                         decoration: const InputDecoration(
                           hintText: 'Enter your phone number',
                           hintStyle: TextStyle(color: Colors.grey),
@@ -418,19 +389,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InkWell(
-                    onTap: () async{
-                      signInWithApple(context);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
-                      child: Image.asset(
-                        'images/apple.png',
-                        height: 50,
-                        width: 50,
-                      ),
-                    ),
-                  ),
+                  
                   InkWell(
                     onTap: () async{
                       
@@ -445,20 +404,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
                       ),
                     ),
                   ),
-                  InkWell(
-                    onTap: () {
-                      // Handle click on the image button
-                     
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
-                      child: Image.asset(
-                        'images/facebook.png',
-                        height: 50,
-                        width: 50,
-                      ),
-                    ),
-                  ),
+                   
                 ],
               ),
               const SizedBox(height: 15),

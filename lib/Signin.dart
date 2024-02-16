@@ -2,13 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Signup.dart';
+import 'package:flutter_application_1/admin.dart';
 import 'package:flutter_application_1/navigationbar.dart';
 import 'package:flutter_application_1/profile.dart';
 import 'package:flutter_application_1/profilecomp.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'location1.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+ 
 
 
 class Signin extends StatelessWidget {
@@ -18,17 +19,27 @@ class Signin extends StatelessWidget {
   final _passwordController = TextEditingController();
 
   Future<void> signInWithEmailAndPassword(BuildContext context, String email, String password) async {
-    try {
+     try {
+      if (email == 'admin' && password == '123456') {
+        // Navigate to the Admin page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AdminPage()),
+        );
+        return;
+      }
+
+      // If not admin credentials, proceed with regular sign-in
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LocationScreen(userId: '',)),
-                      );
 
-      // User signed in successfully, you can navigate to the next screen or perform other actions.
+      // User signed in successfully, navigate to the LocationScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LocationScreen(userId: '',)),
+      );
     } catch (e) {
       // Handle sign-in errors
       print(e.toString());
@@ -42,35 +53,9 @@ class Signin extends StatelessWidget {
       );
     }
   }
+
   //apple signup
-   Future<void> signInWithApple(BuildContext context) async {
-    try {
-      final result = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
-
-      final AuthCredential credential = OAuthProvider('apple.com').credential(
-        idToken: result.identityToken,
-        accessToken: result.authorizationCode,
-      );
-
-      await FirebaseAuth.instance.signInWithCredential(credential);
-
-      // User signed in with Apple successfully, navigate or perform other actions.
-    } catch (e) {
-      print(e.toString());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Apple sign-in failed: ${e.toString()}'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
+    
 //google signup
  //google signup
 //google signup
@@ -312,19 +297,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      signInWithApple(context);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
-                      child: Image.asset(
-                        'images/apple.png', // Replace with your image asset path
-                        height: 50,
-                        width: 50,
-                      ),
-                    ),
-                  ),
+                   
                   InkWell(
                     onTap: () async{
                        await signInWithGoogle(context);
@@ -338,19 +311,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
                       ),
                     ),
                   ),
-                  InkWell(
-                    onTap: () {
-                      // Handle click on the image button
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
-                      child: Image.asset(
-                        'images/facebook.png', // Replace with your image asset path
-                        height: 50,
-                        width: 50,
-                      ),
-                    ),
-                  ),
+                  
                 ],
               ),
               const SizedBox(height: 35),
