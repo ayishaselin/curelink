@@ -1,4 +1,4 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -27,49 +27,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _fullName = '';
   String _Email = '';
   bool _userDataLoaded = false;
-@override
-void initState() {
-  super.initState();
-  // Call _fetchUserData to fetch user data
-  _fetchUserData();
-}
 
-
- Future<void> _fetchUserData() async {
-  print("entered function");
-  try {
-    // Fetch currently authenticated user
-    User? currentUser = _auth.currentUser;
-
-    if (currentUser != null) {
-      // Fetch user document using the current user's ID
-      final userDoc = await _firestore.collection('USER').doc(currentUser.uid).get();
-
-      // Update _fullName and _Email
-      setState(() {
-        _fullName = userDoc['Name'] ?? 'Name not found';
-        _Email = userDoc['Email'] ?? 'Email not found';
-      });
-
-      // Check if profilePicUrl field exists before setting _profilePicUrl
-      if (userDoc.data()!.containsKey('profilePicUrl')) {
-        setState(() {
-          _profilePicUrl = userDoc['profilePicUrl'];
-        });
-      }
-
-      // Set _userDataLoaded to true after fetching data
-      setState(() {
-        _userDataLoaded = true;
-      });
-    } else {
-      print("No user signed in.");
-    }
-  } catch (e) {
-    print('Error fetching user data: $e');
+  @override
+  void initState() {
+    super.initState();
+    // Call _fetchUserData to fetch user data
+    _fetchUserData();
   }
-}
 
+  Future<void> _fetchUserData() async {
+    print("entered function");
+    try {
+      // Fetch currently authenticated user
+      User? currentUser = _auth.currentUser;
+
+      if (currentUser != null) {
+        // Fetch user document using the current user's ID
+        final userDoc =
+            await _firestore.collection('USER').doc(currentUser.uid).get();
+
+        // Update _fullName and _Email
+        setState(() {
+          _fullName = userDoc['Name'] ?? 'Name not found';
+          _Email = userDoc['Email'] ?? 'Email not found';
+        });
+
+        // Check if profilePicUrl field exists before setting _profilePicUrl
+        if (userDoc.data()!.containsKey('profilePicUrl')) {
+          setState(() {
+            _profilePicUrl = userDoc['profilePicUrl'];
+          });
+        }
+
+        // Set _userDataLoaded to true after fetching data
+        setState(() {
+          _userDataLoaded = true;
+        });
+      } else {
+        print("No user signed in.");
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +81,7 @@ void initState() {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await _auth.signOut();
-              Navigator.of(context).pushReplacementNamed('/login');
+              Navigator.of(context).pushReplacementNamed('/signin');
             },
           ),
         ],
@@ -108,6 +108,7 @@ void initState() {
                 child: Stack(
                   children: [
                     CircleAvatar(
+                      key: _circleAvatarKey,
                       radius: 50.0,
                       backgroundImage: _profilePicUrl.isNotEmpty
                           ? CachedNetworkImageProvider(_profilePicUrl)
@@ -147,7 +148,14 @@ void initState() {
                   ),
                 ],
               ),
-               
+              const SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () async {
+                  await _auth.signOut();
+                  Navigator.of(context).pushReplacementNamed('/signin');
+                },
+                child: const Text('Sign Out'),
+              ),
             ],
           ),
         ),
