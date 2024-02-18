@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Clinic_pages/clinicscreen.dart';
 import 'package:flutter_application_1/Signinup/Signup.dart';
 import 'package:flutter_application_1/Admin_pages/admin.dart';
-import 'package:flutter_application_1/User_pages/clinic.dart';
+ 
 import 'package:flutter_application_1/User_pages/navigationbar.dart';
 import 'package:flutter_application_1/User_pages/profile.dart';
 import 'package:flutter_application_1/Signinup/profilecomp.dart';

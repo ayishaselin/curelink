@@ -2,8 +2,7 @@
 import 'package:flutter_application_1/User_pages/home_page.dart';
 import 'package:flutter_application_1/User_pages/profile.dart';
 import 'package:flutter_application_1/User_pages/search.dart';
-import 'clinic.dart';
-
+ 
 class Navigation extends StatefulWidget {
   final String userId;
 

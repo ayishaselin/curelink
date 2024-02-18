@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/User_pages/navigationbar.dart';
+import 'package:flutter_application_1/Clinic_pages/clinicprofile.dart';
+import 'package:flutter_application_1/Clinic_pages/postscreen.dart';
 
-import 'drprofile.dart';
-
-class DoctorScreen extends StatefulWidget {
-  const DoctorScreen({super.key, required String userId});
+class ClinicScreen extends StatefulWidget {
+  const ClinicScreen({super.key});
 
   @override
-  State<DoctorScreen> createState() => _DoctorScreenState();
+  State<ClinicScreen> createState() => _ClinicScreenState();
 }
 
-class _DoctorScreenState extends State<DoctorScreen> {
-  int myIndex = 0;
+class _ClinicScreenState extends State<ClinicScreen> {
+   int myIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return   Scaffold(
       body: getBody(myIndex),
       
       bottomNavigationBar: BottomNavigationBar(
@@ -25,12 +24,12 @@ class _DoctorScreenState extends State<DoctorScreen> {
           });
         },
         currentIndex: myIndex,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Color.fromARGB(255, 1, 101, 252),
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.forum_rounded),
-            label: 'Forum',
+            icon: Icon(Icons.add_a_photo),
+            label: 'Post',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
@@ -44,7 +43,7 @@ class _DoctorScreenState extends State<DoctorScreen> {
   String getTitle(int index) {
     switch (index) {
       case 0:
-        return 'Forum';
+        return 'Post';
       case 1:
         return 'Profile';
        
@@ -56,9 +55,9 @@ class _DoctorScreenState extends State<DoctorScreen> {
   Widget getBody(int index) {
     switch (index) {
       case 0:
-        return const ForumScreen();
+        return  PostScreen(userId: '',);
       case 1:
-        return  DoctorProfile(userId: '',);
+        return  ClinicProfile();
        
       default:
         return Container();
@@ -67,4 +66,5 @@ class _DoctorScreenState extends State<DoctorScreen> {
 
 }
 
- 
+  
+   
