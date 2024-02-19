@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_application_1/pending.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_application_1/location1.dart';
 import 'package:flutter_application_1/Admin_pages/admin.dart';
@@ -226,8 +227,7 @@ class _ProfileState extends State<Profile> {
                           if (userType == 'Doctor') {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => AdminPage(doctorName: name, verificationNumber: verificationNumber)),
-                            );
+                              MaterialPageRoute(builder: (context) =>  PendingPage()));
                           } else {
                             // Navigate to the next screen (you can adjust this part based on your logic)
                             Navigator.push(

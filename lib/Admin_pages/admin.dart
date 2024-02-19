@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_application_1/Signinup/Signin.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AdminPage extends StatefulWidget {
   final String doctorName;
@@ -13,6 +16,7 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
+   final FirebaseAuth _auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,10 +53,37 @@ class _AdminPageState extends State<AdminPage> {
                 },
                 child: Text('Reject'),
               ),
+               
             ],
           ),
+          ElevatedButton(
+                onPressed: () async {
+                   
+             await _auth.signOut();
+
+      // Navigate to the login or sign-up screen
+      // You can replace 'LoginScreen' with the screen you want to navigate to after sign-out
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Signin(userId: '',)));
+                },
+                child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.all(15),
+                  backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(40.0),
+                  ),
+                  minimumSize: const Size(380, 0),
+                ),
+              ), 
         ],
       ),
+      
     );
   }
 
