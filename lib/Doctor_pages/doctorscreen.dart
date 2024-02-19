@@ -1,10 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_application_1/User_pages/navigationbar.dart';
-
-import 'drprofile.dart';
+ import 'package:flutter/material.dart';
+import 'package:flutter_application_1/forum/doctorforum.dart';
+import 'package:flutter_application_1/Doctor_pages/drprofile.dart';
 
 class DoctorScreen extends StatefulWidget {
-  const DoctorScreen({super.key, required String userId});
+  final String userId;
+  final String doctorName;
+  final String documentId; // Remove 'question' property as it's not needed
+
+  const DoctorScreen({
+    Key? key,
+    required this.userId,
+    required this.doctorName,
+    required this.documentId, required String question,
+  }) : super(key: key);
 
   @override
   State<DoctorScreen> createState() => _DoctorScreenState();
@@ -17,7 +25,6 @@ class _DoctorScreenState extends State<DoctorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: getBody(myIndex),
-      
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
           setState(() {
@@ -36,35 +43,21 @@ class _DoctorScreenState extends State<DoctorScreen> {
             icon: Icon(Icons.person),
             label: 'Profile',
           ),
-        ]
+        ],
       ),
     );
-  }
-
-  String getTitle(int index) {
-    switch (index) {
-      case 0:
-        return 'Forum';
-      case 1:
-        return 'Profile';
-       
-      default:
-        return '';
-    }
   }
 
   Widget getBody(int index) {
     switch (index) {
       case 0:
-        return const ForumScreen();
+        return DoctorForumScreen(
+           
+        );
       case 1:
-        return  DoctorProfile(userId: '',);
-       
+        return DoctorProfile(userId: widget.userId);
       default:
         return Container();
     }
   }
-
 }
-
- 

@@ -3,6 +3,7 @@ import 'package:flutter_application_1/User_pages/home_page.dart';
 import 'package:flutter_application_1/User_pages/profile.dart';
 import 'package:flutter_application_1/User_pages/search.dart';
 import 'clinic.dart';
+import '../forum/userforum.dart';
 
 class Navigation extends StatefulWidget {
   final String userId;
@@ -74,7 +75,7 @@ class _NavigationState extends State<Navigation> {
       case 1:
         return SearchScreen();
       case 2:
-        return const ForumScreen();
+        return  UserForumScreen();
       case 3:
         return ProfileScreen(userId: widget.userId);
       default:
@@ -94,16 +95,7 @@ class ExploreScreen extends StatelessWidget {
   }
 }
 
-class ForumScreen extends StatelessWidget {
-  const ForumScreen({Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text('Forum Content')),
-    );
-  }
-}
 
 class EditProfilePage extends StatefulWidget {
   @override

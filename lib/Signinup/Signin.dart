@@ -1,3 +1,5 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -55,17 +57,16 @@ class Signin extends StatelessWidget {
       // Navigate based on the user type
       if (userType == 'Doctor') {
         // Navigate to the DoctorScreen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => DoctorScreen(userId: userId)),
-        );}
-        else if (userType == 'Clinic') {
-      // Navigate to the ClinicScreen for Clinic type
+          DocumentSnapshot doctorSnapshot = await FirebaseFirestore.instance.collection('DOCTOR').doc(userId).get();
+      String doctorName = doctorSnapshot['Name'] ?? 'Unknown Doctor';
+
+      // Navigate to the DoctorScreen with the fetched doctor's name
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ClinicScreen()),
+        MaterialPageRoute(builder: (context) => DoctorScreen(userId: userId, doctorName: doctorName,question: '',documentId: '//',)),
       );
-      } else {
+    }
+ else {
         // Navigate to the LocationScreen for other user types
         Navigator.pushReplacement(
           context,
