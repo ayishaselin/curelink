@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primaryColor: Colors.lightBlue),
-      home: HomeScreen(),
+      home: SecondPage(),
     );
   }
 }
@@ -48,21 +48,22 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.delayed(const Duration(seconds: 2), () {
       // Check if the user is signed in
       User? user = _auth.currentUser;
-      if (user == 'Default user') {
+      if (user != null){
+        if (user == 'Default user') {
         // User is already signed in, navigate to LocationScreen
         navigateToLocationScreen();}
-      else  if (user == 'Doctor') {
+        else  if (user == 'Doctor') {
         // User is already signed in, navigate to LocationScreen
         navigateToDoctorScreen();
       } 
       else  if (user == 'Clinic') {
         // User is already signed in, navigate to LocationScreen
-        navigateToClinicScreen();
-        }else   {
+        navigateToClinicScreen();}
+      }else   {
         // User is not signed in, navigate to SecondPage
         navigateToSecondPage();
       }
-    });
+  });
   }
   void navigateToLocationScreen() {
     Navigator.pushReplacement(
