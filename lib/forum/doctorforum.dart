@@ -20,10 +20,15 @@ class DoctorForumScreen extends StatelessWidget {
           return ListView.builder(
             itemCount: docs.length,
             itemBuilder: (context, index) {
-              Map<String, dynamic> data = docs[index].data() as Map<String, dynamic>;
+              Map<String, dynamic> data =
+                  docs[index].data() as Map<String, dynamic>;
               return ListTile(
                 title: Text(data['question']),
-                subtitle: Text(data['answer'] ?? 'No answer yet'),
+                subtitle: Text(
+                  data['replies'] != null
+                      ? data['replies'].join('\n')
+                      : 'No answer yet',
+                ),
                 trailing: ElevatedButton(
                   onPressed: () {
                     // Navigate to a reply screen or dialog
@@ -50,7 +55,8 @@ class DoctorForumScreen extends StatelessWidget {
 class DoctorReplyScreen extends StatefulWidget {
   final String questionId;
 
-  const DoctorReplyScreen({Key? key, required this.questionId}) : super(key: key);
+  const DoctorReplyScreen({Key? key, required this.questionId})
+      : super(key: key);
 
   @override
   _DoctorReplyScreenState createState() => _DoctorReplyScreenState();
@@ -93,9 +99,12 @@ class _DoctorReplyScreenState extends State<DoctorReplyScreen> {
 
   Future<void> saveAnswer(String questionId, String answer) async {
     try {
-      // Update the answer field in the FORUM collection
-      await FirebaseFirestore.instance.collection('FORUM').doc(questionId).update({
-        'answer': answer,
+      // Update the 'replies' field in the FORUM collection
+      await FirebaseFirestore.instance
+          .collection('FORUM')
+          .doc(questionId)
+          .update({
+        'replies': FieldValue.arrayUnion([answer]),
       });
     } catch (e) {
       print('Error saving answer: $e');

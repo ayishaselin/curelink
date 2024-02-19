@@ -55,7 +55,7 @@ class _DoctorScreenState extends State<DoctorScreen> {
            
         );
       case 1:
-        return DoctorProfile(userId: widget.userId);
+        return DoctorProfileEdit(userId: widget.userId);
       default:
         return Container();
     }

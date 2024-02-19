@@ -25,7 +25,7 @@ class Signin extends StatelessWidget {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-   Future<void> signInWithEmailAndPassword(BuildContext context, String email, String password) async {
+Future<void> signInWithEmailAndPassword(BuildContext context, String email, String password) async {
   try {
     if (email == 'admin' && password == '123456') {
       // Navigate to the Admin page
@@ -37,13 +37,13 @@ class Signin extends StatelessWidget {
     }
 
     // If not admin credentials, proceed with regular sign-in
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
+    UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
 
     // User signed in successfully, get user information
-    User? user = FirebaseAuth.instance.currentUser;
+    User? user = userCredential.user;
 
     // Check if the user is not null
     if (user != null) {
@@ -58,16 +58,17 @@ class Signin extends StatelessWidget {
       // Navigate based on the user type
       if (userType == 'Doctor') {
         // Navigate to the DoctorScreen
-          DocumentSnapshot doctorSnapshot = await FirebaseFirestore.instance.collection('DOCTOR').doc(userId).get();
-      String doctorName = doctorSnapshot['Name'] ?? 'Unknown Doctor';
+        DocumentSnapshot doctorSnapshot = await FirebaseFirestore.instance.collection('DOCTOR').doc(userId).get();
+        String doctorName = (doctorSnapshot.data() as Map<String, dynamic>? ?? {})['Name'] ?? 'Unknown Doctor';
 
-      // Navigate to the DoctorScreen with the fetched doctor's name
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => DoctorScreen(userId: userId, doctorName: doctorName,question: '',documentId: '//',)),
-      );
-    }
- else {
+
+        print("name: $doctorName");
+        // Navigate to the DoctorScreen with the fetched doctor's name
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DoctorScreen(userId: userId, doctorName: doctorName, question: '', documentId: '//')),
+        );
+      } else {
         // Navigate to the LocationScreen for other user types
         Navigator.pushReplacement(
           context,
@@ -88,6 +89,7 @@ class Signin extends StatelessWidget {
     );
   }
 }
+
 
 
   //apple signup

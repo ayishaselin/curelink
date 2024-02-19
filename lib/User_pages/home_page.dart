@@ -113,6 +113,8 @@ class _HomeScreensState extends State<HomeScreens> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        title: const Text('Home Page',
+        style: TextStyle(color: Colors.white),),
         backgroundColor: const Color.fromARGB(255, 1, 101, 252),
         flexibleSpace: Row(
           mainAxisAlignment: MainAxisAlignment.start,

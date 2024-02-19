@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class Post {
+  final String userId;
+  final String clinicName;
+
+  Post({required this.userId, required this.clinicName});
+}
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -8,10 +16,13 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+   
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
       appBar: AppBar(
+        title: const Text('Explore',
+        style: TextStyle(color: Colors.white),),
         automaticallyImplyLeading: false, // Hide the back button
                  
         backgroundColor: Color.fromARGB(255, 1, 101, 252), // Set the background color to blue
@@ -54,7 +65,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-        const SizedBox(height: 16.0),
+ 
         const SizedBox(height: 16.0),
           const Text(
             'Doctor Speciality',
@@ -72,6 +83,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 buildIconButton('Neurologist', 'images/neuro.png'),
               ],
             ),
+          ), const SizedBox(height: 16.0),
+          const Text(
+            'Clinic Updates',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
           ),]));
   }
 }
