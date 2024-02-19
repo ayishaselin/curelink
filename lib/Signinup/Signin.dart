@@ -31,7 +31,7 @@ class Signin extends StatelessWidget {
       // Navigate to the Admin page
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AdminPage()),
+        MaterialPageRoute(builder: (context) =>  AdminPage (doctorName: '', verificationNumber: '',)),
       );
       return;
     }
