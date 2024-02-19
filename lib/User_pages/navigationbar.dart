@@ -2,7 +2,7 @@
 import 'package:flutter_application_1/User_pages/home_page.dart';
 import 'package:flutter_application_1/User_pages/profile.dart';
 import 'package:flutter_application_1/User_pages/search.dart';
-import 'clinic.dart';
+// import 'clinic.dart';
 import '../forum/userforum.dart';
 
 class Navigation extends StatefulWidget {

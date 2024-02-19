@@ -36,7 +36,7 @@ class _DoctorScreenState extends State<DoctorScreen> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.forum_rounded),
             label: 'Forum',
           ),
           BottomNavigationBarItem(

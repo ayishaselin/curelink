@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+ 
 import 'package:flutter_application_1/Signinup/Signin.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -132,16 +133,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: <Widget>[
                   Text(
                     _fullName.isNotEmpty ? _fullName : 'Name not found',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.nunitoSans(
                         fontSize: 20, fontWeight: FontWeight.w500),
                   ),
                   Text(
                     _Email,
-                    style: GoogleFonts.inter(fontSize: 18),
+                    style: GoogleFonts.nunitoSans(fontSize: 18),
                   ),
                 ],
               ),
-              const SizedBox(height: 330.0),
+              const SizedBox(height: 400.0),
               ElevatedButton(
                 onPressed: () async {
                    
@@ -151,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // You can replace 'LoginScreen' with the screen you want to navigate to after sign-out
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Signin(userId:widget.userId)));
+        MaterialPageRoute(builder: (context) => Signin(userId: '',)));
                 },
                 child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
                 style: ElevatedButton.styleFrom(

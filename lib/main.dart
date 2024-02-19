@@ -1,6 +1,8 @@
  import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_application_1/Clinic_pages/clinicscreen.dart';
+import 'package:flutter_application_1/Doctor_pages/doctorscreen.dart';
  
 import 'package:flutter_application_1/Intro_pages/intro1.dart';
 import 'package:flutter_application_1/location1.dart';
@@ -9,7 +11,9 @@ import 'package:flutter_application_1/location1.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(MyApp(
+    
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -44,16 +48,22 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.delayed(const Duration(seconds: 2), () {
       // Check if the user is signed in
       User? user = _auth.currentUser;
-      if (user != null) {
+      if (user == 'Default user') {
         // User is already signed in, navigate to LocationScreen
-        navigateToLocationScreen();
-      } else {
+        navigateToLocationScreen();}
+      else  if (user == 'Doctor') {
+        // User is already signed in, navigate to LocationScreen
+        navigateToDoctorScreen();
+      } 
+      else  if (user == 'Clinic') {
+        // User is already signed in, navigate to LocationScreen
+        navigateToClinicScreen();
+        }else   {
         // User is not signed in, navigate to SecondPage
         navigateToSecondPage();
       }
     });
   }
-
   void navigateToLocationScreen() {
     Navigator.pushReplacement(
       context,
@@ -61,13 +71,22 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void navigateToDoctorScreen() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => DoctorScreen(userId: '', doctorName: '', documentId: '', question: '',)),
+    );
+  }
+
+  
+
   void navigateToSecondPage() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => SecondPage()),
     );
   }
-
+   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,6 +100,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+    );
+  }
+  
+  void navigateToClinicScreen() { 
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => ClinicScreen()),
     );
   }
 }
