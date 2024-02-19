@@ -54,6 +54,48 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-        const SizedBox(height: 16.0)]));
+        const SizedBox(height: 16.0),
+        const SizedBox(height: 16.0),
+          const Text(
+            'Doctor Speciality',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 16.0),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildIconButton('Dentist', 'images/dentist.png'),
+                buildIconButton('Cardiologist', 'images/cardio.png'),
+                buildIconButton('Orthopedist', 'images/ortho.png'),
+                buildIconButton('Neurologist', 'images/neuro.png'),
+              ],
+            ),
+          ),]));
   }
 }
+ Widget buildIconButton(String caption, String imagePath) {
+    return InkWell(
+      onTap: () {
+        // Handle button tap
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
+        child: Column(
+          children: [
+            Image.asset(
+              imagePath,
+              height: 80,
+              width: 80,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              caption,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+            ),
+          ],
+        ),
+      ),
+    );
+  }

@@ -1,5 +1,6 @@
  import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -7,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PostScreen extends StatefulWidget {
   final String userId;
+  
 
   const PostScreen({super.key, required this.userId});
   @override
@@ -51,17 +53,19 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Future<void> _uploadAndSavePost() async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
     try {
       if (_selectedImage != null) {
         final storageRef = FirebaseStorage.instance.ref().child('posts/${DateTime.now().toIso8601String()}.jpg');
         await storageRef.putFile(_selectedImage!);
 
         final downloadUrl = await storageRef.getDownloadURL();
+        
 
-        await FirebaseFirestore.instance.collection('POSTS').add({
-          'image_url': downloadUrl,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+          await FirebaseFirestore.instance.collection('POSTS').doc(userId).set({
+    'image_url': downloadUrl,
+    'timestamp': FieldValue.serverTimestamp(),
+  });
 
         setState(() {
           _selectedImage = null;
@@ -101,7 +105,7 @@ class _PostScreenState extends State<PostScreen> {
                 ),
                 const SizedBox(height: 16.0),
                 const Text(
-                  'Some description or text related to the posted image.',
+                  'Some description ',
                   style: TextStyle(fontSize: 16.0),
                   textAlign: TextAlign.center,
                 ),
@@ -143,8 +147,4 @@ class _PostScreenState extends State<PostScreen> {
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: PostScreen(userId: '',),
-  ));
-}
+
