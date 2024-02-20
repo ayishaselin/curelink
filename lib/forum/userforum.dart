@@ -1,6 +1,7 @@
  import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class UserForumScreen extends StatefulWidget {
   @override
@@ -50,10 +51,19 @@ class _UserForumScreenState extends State<UserForumScreen> {
               hintText: 'Ask a question...',
             ),
           ),
+          const SizedBox(height: 16.0),
           ElevatedButton(
             onPressed: _sendQuestion,
-            child: Text('Send'),
-          ),
+             
+            child: Text('Send', style: GoogleFonts.inter(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(15),
+                      backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),),
           Expanded(
             child: _buildQuestionList(),
           ),

@@ -16,6 +16,35 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  final CollectionReference postsCollection =
+      FirebaseFirestore.instance.collection('POSTS');
+
+  late List<Post> posts = [];
+
+   @override
+  void initState() {
+    super.initState();
+    // Fetch posts from Firestore when the widget is initialized
+    fetchPosts();
+  }
+
+  Future<void> fetchPosts() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot =
+          await postsCollection.get() as QuerySnapshot<Map<String, dynamic>>;
+      List<Post> retrievedPosts = snapshot.docs
+          .map((doc) => Post(
+                userId: doc['userId'],
+                clinicName: doc['image_url'],
+              ))
+          .toList();
+      setState(() {
+        posts = retrievedPosts;
+      });
+    } catch (e) {
+      print('Error fetching posts: $e');
+    }
+  }
    
   @override
   Widget build(BuildContext context) {
@@ -87,7 +116,17 @@ class _SearchScreenState extends State<SearchScreen> {
           const Text(
             'Clinic Updates',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-          ),]));
+          ),
+           posts.isNotEmpty
+              ? Column(
+                  children: posts
+                      .map((post) => ListTile(
+                            title: Text(post.clinicName),
+                          ))
+                      .toList(),
+                )
+        
+              : CircularProgressIndicator(color:Color.fromARGB(255, 1,101, 252),),]));
   }
 }
  Widget buildIconButton(String caption, String imagePath) {
@@ -109,6 +148,7 @@ class _SearchScreenState extends State<SearchScreen> {
               caption,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
+               
           ],
         ),
       ),
