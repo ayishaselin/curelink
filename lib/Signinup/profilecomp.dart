@@ -220,6 +220,8 @@ class _ProfileState extends State<Profile> {
                           await FirebaseFirestore.instance.collection('USER').doc(user.uid).set({
                             'Name': name,
                             'userType': userType,
+                            'verificationNumber': verificationNumber,
+                            'status': 'pending',
                             if (userType == 'Doctor') 'verificationNumber': verificationNumber,
                           });
 
@@ -227,7 +229,7 @@ class _ProfileState extends State<Profile> {
                           if (userType == 'Doctor') {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) =>  PendingPage()));
+                              MaterialPageRoute(builder: (context) =>  PendingPage(userId: '',)));
                           } else {
                             // Navigate to the next screen (you can adjust this part based on your logic)
                             Navigator.push(

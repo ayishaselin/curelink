@@ -16,7 +16,8 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
-   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,42 +54,47 @@ class _AdminPageState extends State<AdminPage> {
                 },
                 child: Text('Reject'),
               ),
-               
             ],
           ),
           ElevatedButton(
-                onPressed: () async {
-                   
-             await _auth.signOut();
+            onPressed: () async {
+              await _auth.signOut();
 
-      // Navigate to the login or sign-up screen
-      // You can replace 'LoginScreen' with the screen you want to navigate to after sign-out
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Signin(userId: '',)));
-                },
-                child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(15),
-                  backgroundColor: const Color.fromARGB(255, 1, 101, 252),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(40.0),
-                  ),
-                  minimumSize: const Size(380, 0),
-                ),
-              ), 
+              // Navigate to the login or sign-up screen
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Signin(userId: '')),
+              );
+            },
+            child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.all(15),
+              backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.normal,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40.0),
+              ),
+              minimumSize: const Size(380, 0),
+            ),
+          ),
         ],
       ),
-      
     );
   }
 
-  void acceptVerification(String doctorName, String verificationNumber) async {
+  Future<void> acceptVerification(String doctorName, String verificationNumber) async {
     try {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Accepting verification...'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
       // Update Firestore document with userType = "Doctor"
       await FirebaseFirestore.instance.collection('USER').where('Name', isEqualTo: doctorName).get().then((snapshot) {
         if (snapshot.docs.isNotEmpty) {
@@ -96,8 +102,10 @@ class _AdminPageState extends State<AdminPage> {
           FirebaseFirestore.instance.collection('USER').doc(userId).update({
             'userType': 'Doctor',
             'verificationNumber': verificationNumber,
+            'status': 'Accepted', // Optionally, update the status to 'Accepted'
           });
-          // Optionally, notify the user about the acceptance
+
+          // Notify the user about the acceptance
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Verification accepted for $doctorName'),
@@ -107,9 +115,8 @@ class _AdminPageState extends State<AdminPage> {
         }
       });
     } catch (e) {
-      // Handle update errors
+      // Handle update errors more gracefully
       print('Error accepting verification: $e');
-      // Optionally, show an error message to the user
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error accepting verification. Please try again.'),
