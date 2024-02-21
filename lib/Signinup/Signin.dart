@@ -31,7 +31,7 @@ Future<void> signInWithEmailAndPassword(BuildContext context, String email, Stri
       // Navigate to the Admin page
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) =>  AdminPage (doctorName: '', verificationNumber: '',)),
+        MaterialPageRoute(builder: (context) => AdminPage()),
       );
       return;
     }
@@ -54,9 +54,10 @@ Future<void> signInWithEmailAndPassword(BuildContext context, String email, Stri
       // Check the user type
       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('USER').doc(userId).get();
       String userType = userSnapshot['userType'] ?? '';
-
+      String userRole = userSnapshot['role'] ?? '';
       // Navigate based on the user type
-      if (userType == 'Doctor') {
+      
+      if (userRole == 'Doctor') {
         // Navigate to the DoctorScreen
         DocumentSnapshot doctorSnapshot = await FirebaseFirestore.instance.collection('DOCTOR').doc(userId).get();
         String doctorName = (doctorSnapshot.data() as Map<String, dynamic>? ?? {})['Name'] ?? 'Unknown Doctor';
@@ -68,7 +69,15 @@ Future<void> signInWithEmailAndPassword(BuildContext context, String email, Stri
           context,
           MaterialPageRoute(builder: (context) => DoctorScreen(userId: userId, doctorName: doctorName, question: '', documentId: '//')),
         );
-      } else {
+      } else if(userRole=='Clinic') {
+       // Navigate to the LocationScreen for other user types
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ClinicScreen(userId: userId)),
+        );
+      
+      } 
+      else {
         // Navigate to the LocationScreen for other user types
         Navigator.pushReplacement(
           context,

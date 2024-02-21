@@ -1,139 +1,264 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_application_1/Signinup/Signin.dart';
+import 'package:flutter_application_1/Doctor_pages/pending.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class AdminPage extends StatefulWidget {
-  final String doctorName;
-  final String verificationNumber;
-
-  const AdminPage({Key? key, required this.doctorName, required this.verificationNumber})
-      : super(key: key);
-
-  @override
-  _AdminPageState createState() => _AdminPageState();
-}
-
-class _AdminPageState extends State<AdminPage> {
+class AdminPage extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Admin Page'),
+        title: Text('Admin Page', style: TextStyle(color: Colors.white)),
+        automaticallyImplyLeading: false,
+        backgroundColor: Color.fromARGB(255, 1, 101, 252),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Doctor Verification Request',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 20),
-          ListTile(
-            title: Text('Doctor Name: ${widget.doctorName}'),
-            subtitle: Text('Verification Number: ${widget.verificationNumber}'),
-          ),
-          SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  acceptVerification(widget.doctorName, widget.verificationNumber);
-                },
-                child: Text('Accept'),
-              ),
-              SizedBox(width: 20),
-              ElevatedButton(
-                onPressed: () {
-                  rejectVerification(widget.doctorName);
-                },
-                child: Text('Reject'),
-              ),
-            ],
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await _auth.signOut();
-
-              // Navigate to the login or sign-up screen
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => Signin(userId: '')),
-              );
-            },
-            child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.all(15),
-              backgroundColor: const Color.fromARGB(255, 1, 101, 252),
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40.0),
-              ),
-              minimumSize: const Size(380, 0),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Doctor and Clinic Verification Requests',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-          ),
-        ],
+            SizedBox(height: 20),
+            Expanded(
+              child: PendingRequestsList(),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await _auth.signOut();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Signin(userId: '')),
+                );
+              },
+              child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(15),
+                backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(40.0),
+                ),
+                minimumSize: const Size(380, 0),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PendingRequestsList extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance
+          .collection('USER')
+          .where('status', isEqualTo: 'pending')
+          .snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          showErrorSnackBar(context, 'Error: ${snapshot.error}');
+          return Container();
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.data!.docs.isEmpty) {
+          return Center(child: Text('No pending requests.'));
+        }
+
+        return ListView.builder(
+          itemCount: snapshot.data!.docs.length,
+          itemBuilder: (context, index) {
+            var request = snapshot.data!.docs[index];
+
+            return RequestCard(
+              userName: request['Name'],
+              verificationNumber: request['verificationNumber'],
+              registrationNumber: request['registrationNumber'],
+              userType: request['userType'],
+              acceptCallback: () => acceptVerification(
+                context,
+                request['Name'],
+                request['verificationNumber'],
+                request['registrationNumber'],
+                request['userType'],
+              ),
+              rejectCallback: () => rejectVerification(context, request['Name']),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void showErrorSnackBar(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+        duration: Duration(seconds: 3),
       ),
     );
   }
 
-  Future<void> acceptVerification(String doctorName, String verificationNumber) async {
-    try {
-      // Show loading indicator
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Accepting verification...'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+    Future<void> acceptVerification(
+  BuildContext context,
+  String userName,
+  String verificationNumber,
+  String? registrationNumber,
+  String userType,
+) async {
+  try {
+    showSnackBar(context, 'Accepting verification...');
 
-      // Update Firestore document with userType = "Doctor"
-      await FirebaseFirestore.instance.collection('USER').where('Name', isEqualTo: doctorName).get().then((snapshot) {
-        if (snapshot.docs.isNotEmpty) {
-          String userId = snapshot.docs.first.id;
-          FirebaseFirestore.instance.collection('USER').doc(userId).update({
-            'userType': 'Doctor',
-            'verificationNumber': verificationNumber,
-            'status': 'Accepted', // Optionally, update the status to 'Accepted'
-          });
+    await FirebaseFirestore.instance
+        .collection('USER')
+        .where('Name', isEqualTo: userName)
+        .get()
+        .then((snapshot) async {
+      if (snapshot.docs.isNotEmpty) {
+        String userId = snapshot.docs.first.id;
+        var userData = snapshot.docs.first.data() as Map<String, dynamic>;
 
-          // Notify the user about the acceptance
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Verification accepted for $doctorName'),
-              duration: Duration(seconds: 3),
-            ),
-          );
+        print('Original userType: ${userData['userType']}');
+
+        // Move the user to the appropriate collection based on userType
+        if (userType == 'Doctor') {
+          await FirebaseFirestore.instance
+              .collection('DOCTOR')
+              .doc(userId)
+              .set(userData);
+          
+          // Set the 'role' field in the 'DOCTOR' collection
+          await FirebaseFirestore.instance
+              .collection('DOCTOR')
+              .doc(userId)
+              .update({'role': 'Doctor'});
+        } else if (userType == 'Clinic') {
+          await FirebaseFirestore.instance
+              .collection('CLINIC')
+              .doc(userId)
+              .set(userData);
+          
+          // Set the 'role' field in the 'CLINIC' collection
+          await FirebaseFirestore.instance
+              .collection('CLINIC')
+              .doc(userId)
+              .update({'role': 'Clinic'});
         }
-      });
-    } catch (e) {
-      // Handle update errors more gracefully
-      print('Error accepting verification: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error accepting verification. Please try again.'),
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
+
+        // Update USER document with accepted verification details
+        await FirebaseFirestore.instance.collection('USER').doc(userId).update({
+          'userType': userType,
+          'verificationNumber': verificationNumber,
+          'status': 'Accepted',
+          'role': userType == 'Doctor' ? 'Doctor' : 'Clinic', // Update the 'role' field in the 'USER' collection
+        });
+        if (userType == 'Doctor') {
+          await FirebaseFirestore.instance
+              .collection('DOCTOR')
+              .doc(userId)
+              .set(userData);
+        } else if (userType == 'Clinic') {
+          await FirebaseFirestore.instance
+              .collection('CLINIC')
+              .doc(userId)
+              .set(userData);
+
+        print('Updated userType: $userType');
+
+        showSnackBar(context, 'Verification accepted for $userName');
+      }
+  }});
+  } catch (e) {
+    print('Error accepting verification: $e');
+    showSnackBar(context, 'Error accepting verification. Please try again.');
+  }
+}
+
+
+  void rejectVerification(BuildContext context, String userName) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => PendingPage(userId: '')),
+    );
+    showSnackBar(context, 'Verification rejected for $userName');
   }
 
-  void rejectVerification(String doctorName) {
-    // Handle the logic for rejecting verification (optional)
-    // You may want to notify the user about the rejection
-    // Optionally, you can navigate to another page or show a rejection message
+  void showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Verification rejected for $doctorName'),
+        content: Text(message),
         duration: Duration(seconds: 3),
+      ),
+    );
+  }
+}
+
+class RequestCard extends StatelessWidget {
+  final String userName;
+  final String verificationNumber;
+  final String? registrationNumber;
+  final String userType;
+  final VoidCallback acceptCallback;
+  final VoidCallback rejectCallback;
+
+  const RequestCard({
+    Key? key,
+    required this.userName,
+    required this.verificationNumber,
+    required this.acceptCallback,
+    required this.rejectCallback,
+    required this.userType,
+    this.registrationNumber,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.all(10),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'User Name: $userName',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+             
+            Text('Verification Number: $verificationNumber'),
+            
+              Text('Registration Number: $registrationNumber'),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: acceptCallback,
+                  child: Text('Accept'),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: rejectCallback,
+                  child: Text('Reject'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

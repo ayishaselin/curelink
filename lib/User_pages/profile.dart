@@ -83,6 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       color: Colors.white, // Set the color to white or any other color you prefer
     ),
   ),
+  automaticallyImplyLeading: false,
 ),
 
       body: SingleChildScrollView(

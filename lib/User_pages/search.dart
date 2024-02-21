@@ -1,78 +1,142 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Post {
-  final String userId;
-  final String clinicName;
+  final String imageUrl;
+  final Timestamp timestamp;
 
-  Post({required this.userId, required this.clinicName});
+  Post({required this.imageUrl, required this.timestamp});
 }
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  const SearchScreen({Key? key}) : super(key: key);
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final CollectionReference postsCollection =
-      FirebaseFirestore.instance.collection('POSTS');
-
+  late Future<void> _fetchPostsFuture;
   late List<Post> posts = [];
 
-   @override
+  @override
   void initState() {
     super.initState();
-    // Fetch posts from Firestore when the widget is initialized
-    fetchPosts();
+    _fetchPostsFuture = _fetchPosts();
   }
 
-  Future<void> fetchPosts() async {
+  Future<void> _fetchPosts() async {
     try {
-      QuerySnapshot<Map<String, dynamic>> snapshot =
-          await postsCollection.get() as QuerySnapshot<Map<String, dynamic>>;
-      List<Post> retrievedPosts = snapshot.docs
-          .map((doc) => Post(
-                userId: doc['userId'],
-                clinicName: doc['image_url'],
-              ))
-          .toList();
+      final querySnapshot =
+          await FirebaseFirestore.instance.collection('POSTS').get();
+      final List<Post> fetchedPosts = [];
+
+      print('Number of documents in POSTS collection: ${querySnapshot.size}');
+
+      for (final doc in querySnapshot.docs) {
+        final List<dynamic>? docPosts = doc['posts'];
+
+        if (docPosts != null) {
+          print('Number of posts in document ${doc.id}: ${docPosts.length}');
+
+          for (final post in docPosts) {
+            final String imageUrl = post['image_url'] ?? '';
+            final Timestamp timestamp = post['timestamp'] ?? Timestamp.now();
+
+            fetchedPosts.add(Post(imageUrl: imageUrl, timestamp: timestamp));
+            print('Fetched Image URL: $imageUrl');
+          }
+        }
+      }
+
       setState(() {
-        posts = retrievedPosts;
+        posts = fetchedPosts;
       });
+
+      print('Posts fetched successfully. Number of posts: ${posts.length}');
     } catch (e) {
       print('Error fetching posts: $e');
     }
   }
-   
+
+  Widget _buildImagePicker() {
+  Widget imagePicker = Expanded(
+    child: ListView(
+      children: [
+        for (var post in posts)
+          Column(
+            children: [
+              Container(
+                height: 350.0,
+                width: 350.0,
+                child: post.imageUrl.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0), // Adjust the radius as needed
+                        child: CachedNetworkImage(
+                          imageUrl: post.imageUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => CircularProgressIndicator(),
+                          errorWidget: (context, url, error) {
+                            print('Error loading image: $error');
+                            return Icon(Icons.error, color: Colors.red);
+                          },
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              const SizedBox(height: 16.0),
+              Text(
+                'Timestamp: ${post.timestamp.toDate()}',
+                style: TextStyle(fontSize: 16.0),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        const SizedBox(height: 16.0),
+      ],
+    ),
+  );
+
+  // Debug print statements
+  _debugPrintPosts();
+
+  return imagePicker;
+}
+
+
+
+void _debugPrintPosts() {
+  for (var post in posts) {
+    print('Post: $post');
+    // print('Image URL: ${post.imageUrl}');
+    }
+}
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       appBar: AppBar(
-        title: const Text('Explore',
-        style: TextStyle(color: Colors.white),),
-        automaticallyImplyLeading: false, // Hide the back button
-                 
-        backgroundColor: Color.fromARGB(255, 1, 101, 252), // Set the background color to blue
-         
-        
+        title: const Text('Explore', style: TextStyle(color: Colors.white)),
+        automaticallyImplyLeading: false,
+        backgroundColor: Color.fromARGB(255, 1, 101, 252),
         flexibleSpace: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Container(
               padding: const EdgeInsets.all(5.0),
-              width: 150.0,  // Adjust the width to control the size of the logo
-              height: 150.0, // Adjust the height to control the size of the logo
-               
+              width: 150.0,
+              height: 150.0,
             ),
           ],
         ),
-          
-        // Add other AppBar properties as needed
       ),
-       
-         body: Column(
+      body: Column(
         children: [
           const SizedBox(height: 16.0),
           Padding(
@@ -83,19 +147,19 @@ class _SearchScreenState extends State<SearchScreen> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15.0), // Add horizontal padding
+                padding: EdgeInsets.symmetric(horizontal: 15.0),
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Search',
-                    hintStyle: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
+                    hintStyle:
+                        TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
                     border: InputBorder.none,
                   ),
                 ),
               ),
             ),
           ),
- 
-        const SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           const Text(
             'Doctor Speciality',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
@@ -112,24 +176,31 @@ class _SearchScreenState extends State<SearchScreen> {
                 buildIconButton('Neurologist', 'images/neuro.png'),
               ],
             ),
-          ), const SizedBox(height: 16.0),
+          ),
+          const SizedBox(height: 16.0),
           const Text(
             'Clinic Updates',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
           ),
-           posts.isNotEmpty
-              ? Column(
-                  children: posts
-                      .map((post) => ListTile(
-                            title: Text(post.clinicName),
-                          ))
-                      .toList(),
-                )
-        
-              : CircularProgressIndicator(color:Color.fromARGB(255, 1,101, 252),),]));
+          // Use FutureBuilder to handle the async initialization
+          FutureBuilder<void>(
+            future: _fetchPostsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                // Display posts from Firestore using _buildImagePicker
+                return _buildImagePicker();
+              } else {
+                // Show a loading indicator while fetching data
+                return CircularProgressIndicator();
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
-}
- Widget buildIconButton(String caption, String imagePath) {
+
+  Widget buildIconButton(String caption, String imagePath) {
     return InkWell(
       onTap: () {
         // Handle button tap
@@ -148,9 +219,9 @@ class _SearchScreenState extends State<SearchScreen> {
               caption,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
-               
           ],
         ),
       ),
     );
   }
+}

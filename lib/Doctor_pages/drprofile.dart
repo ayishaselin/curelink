@@ -70,12 +70,12 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
       final userId = _auth.currentUser?.uid;
 
       if (userId != null) {
-        await _firestore.collection('DOCTOR').doc(userId).set({
+        await _firestore.collection('DOCTOR').doc(userId).update({
           'Name': nameController.text,
           'Specialization': specializationController.text,
           'Bio': bioController.text,
           'Timing': timingController.text,
-          'Location': locationController.text,
+          // 'Location': locationController.text,
           // Add more fields as needed
         });
 
@@ -146,65 +146,84 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
     }
   }
 
-  Future<void> _getLocation(BuildContext context) async {
-    Location locationService = Location();
+Future<void> _getLocation(BuildContext context) async {
+  Location locationService = Location(); // Rename the variable to locationService
 
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
+  bool _serviceEnabled;
+  PermissionStatus _permissionGranted;
+  LocationData _locationData;
 
-    _serviceEnabled = await locationService.serviceEnabled();
+  // Check if location service is enabled
+  _serviceEnabled = await locationService.serviceEnabled();
+  if (!_serviceEnabled) {
+    print("Location service is not enabled. Requesting service...");
+    _serviceEnabled = await locationService.requestService();
     if (!_serviceEnabled) {
-      print("Location service is not enabled. Requesting service...");
-      _serviceEnabled = await locationService.requestService();
-      if (!_serviceEnabled) {
-        print("Location service request denied.");
-        return;
-      }
-    }
-
-    _permissionGranted = await locationService.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      print("Location permission is denied. Requesting permission...");
-      _permissionGranted = await locationService.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        print("Location permission request denied.");
-        return;
-      }
-    }
-
-    try {
-      _locationData = await locationService.getLocation();
-      print("Location: ${_locationData.latitude}, ${_locationData.longitude}");
-
-      _doctorLocation = '${_locationData.latitude}, ${_locationData.longitude}';
-      // Print the doctor location before storing it
-      print("Doctor Location to be stored: $_doctorLocation");
-
-      // Call the method to store location in Firestore
-      await _storeLocation(_doctorLocation);
-    } catch (e) {
-      print("Failed to get location: $e");
+      print("Location service request denied.");
+      return;
     }
   }
 
-  Future<void> _storeLocation(String doctorLocation) async {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-
-      if (user != null) {
-        await FirebaseFirestore.instance.collection('DOCTOR').doc(user.uid).update({
-          'Location': doctorLocation,
-        });
-
-        print('Location stored for doctor ${user.uid} in Firestore');
-      } else {
-        print('No user is currently signed in.');
-      }
-    } catch (e) {
-      print('Failed to store location: $e');
+  // Check if permissions are granted
+  _permissionGranted = await locationService.hasPermission();
+  if (_permissionGranted == PermissionStatus.denied) {
+    print("Location permission is denied. Requesting permission...");
+    _permissionGranted = await locationService.requestPermission();
+    if (_permissionGranted != PermissionStatus.granted) {
+      print("Location permission request denied.");
+      return;
     }
   }
+
+try {
+  _locationData = await locationService.getLocation();
+  print("Location: ${_locationData.latitude}, ${_locationData.longitude}");
+
+  // Check for nullability and provide default values if needed
+  double latitude = _locationData.latitude ?? 0.0;
+  double longitude = _locationData.longitude ?? 0.0;
+
+  // Store location data in Firestore as GeoPoint
+  await _storeLocation(latitude, longitude);
+
+  // Here you can handle the location data (e.g., update the state, send to backend, etc.)
+} catch (locationError) {
+  print('Error getting location: $locationError');
+}
+ catch (locationError) {
+    print('Error getting location: $locationError');
+  }
+
+  try {
+    // Additional error handling for storage can be added if needed
+  } catch (storeError) {
+    print('Error storing location: $storeError');
+  }
+}
+
+
+   
+
+Future<void> _storeLocation(double clinicLatitude, double clinicLongitude) async {
+  try {
+    // Get the current user
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Replace 'USER' with the collection you created in Firestore
+      await FirebaseFirestore.instance.collection('DOCTOR').doc(user.uid).update({
+        'Location': GeoPoint(clinicLatitude, clinicLongitude),
+      });
+
+      print('Location stored for user ${user.uid} in Firestore');
+    } else {
+      print('No user is currently signed in.');
+    }
+  } catch (e) {
+    print('Failed to store location: $e');
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {

@@ -41,11 +41,11 @@ class _ClinicProfileEditState extends State<ClinicProfileEdit> {
       final userId = FirebaseAuth.instance.currentUser?.uid;
 
       if (userId != null) {
-        await FirebaseFirestore.instance.collection('CLINIC').doc(userId).set({
+        await FirebaseFirestore.instance.collection('CLINIC').doc(userId).update({
           'clinicName': nameController.text,
           'place': placeController.text,
           'openingHours': timingController.text,
-          'clinicLocation': _clinicLocation, // Store clinic location
+          // 'clinicLocation': _clinicLocation, // Store clinic location
         });
         // Optionally, show a success message to the user
         ScaffoldMessenger.of(context).showSnackBar(
@@ -117,7 +117,7 @@ class _ClinicProfileEditState extends State<ClinicProfileEdit> {
     }
   }
 
-  Future<void> _getLocation(BuildContext context) async {
+Future<void> _getLocation(BuildContext context) async {
   Location locationService = Location(); // Rename the variable to locationService
 
   bool _serviceEnabled;
@@ -146,23 +146,36 @@ class _ClinicProfileEditState extends State<ClinicProfileEdit> {
     }
   }
 
+try {
+  _locationData = await locationService.getLocation();
+  print("Location: ${_locationData.latitude}, ${_locationData.longitude}");
+
+  // Check for nullability and provide default values if needed
+  double latitude = _locationData.latitude ?? 0.0;
+  double longitude = _locationData.longitude ?? 0.0;
+
+  // Store location data in Firestore as GeoPoint
+  await _storeLocation(latitude, longitude);
+
+  // Here you can handle the location data (e.g., update the state, send to backend, etc.)
+} catch (locationError) {
+  print('Error getting location: $locationError');
+}
+ catch (locationError) {
+    print('Error getting location: $locationError');
+  }
+
   try {
-    _locationData = await locationService.getLocation();
-    print("Location: ${_locationData.latitude}, ${_locationData.longitude}");
-
-    // Store location data in Firestore
-    _clinicLocation = '${_locationData.latitude}, ${_locationData.longitude}';
-    await _storeLocation(_clinicLocation);
-
-    // Here you can handle the location data (e.g., update the state, send to backend, etc.)
-  } catch (e) {
-    print("Failed to get location: $e");
+    // Additional error handling for storage can be added if needed
+  } catch (storeError) {
+    print('Error storing location: $storeError');
   }
 }
 
+
    
 
-Future<void> _storeLocation(String clinicLocation) async {
+Future<void> _storeLocation(double clinicLatitude, double clinicLongitude) async {
   try {
     // Get the current user
     User? user = FirebaseAuth.instance.currentUser;
@@ -170,7 +183,7 @@ Future<void> _storeLocation(String clinicLocation) async {
     if (user != null) {
       // Replace 'USER' with the collection you created in Firestore
       await FirebaseFirestore.instance.collection('CLINIC').doc(user.uid).update({
-        'clinicLocation': clinicLocation,
+        'clinicLocation': GeoPoint(clinicLatitude, clinicLongitude),
       });
 
       print('Location stored for user ${user.uid} in Firestore');
@@ -181,6 +194,7 @@ Future<void> _storeLocation(String clinicLocation) async {
     print('Failed to store location: $e');
   }
 }
+
 
 // Function to get the current location
   

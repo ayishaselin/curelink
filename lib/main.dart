@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void navigateToClinicScreen() { 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => ClinicScreen()),
+      MaterialPageRoute(builder: (context) => ClinicScreen(userId: '',)),
     );
   }
 }

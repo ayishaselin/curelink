@@ -1,6 +1,7 @@
- import 'dart:typed_data';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -9,8 +10,9 @@ class Doctor {
   final String name;
   final String specialization;
   final String imagePath;
+  final LatLng location; // Added location field
 
-  Doctor({required this.name, required this.specialization, required this.imagePath});
+  Doctor({required this.name, required this.specialization, required this.imagePath, required this.location});
 }
 
 class HomeScreens extends StatefulWidget {
@@ -37,67 +39,85 @@ class _HomeScreensState extends State<HomeScreens> {
 
   void fetchUserLocation() async {
     try {
-      DocumentSnapshot userSnapshot =
-          await FirebaseFirestore.instance.collection('USER').doc('userId').get();
+      User? user = FirebaseAuth.instance.currentUser;
 
-      double latitude = userSnapshot['Latitude'];
-      double longitude = userSnapshot['Longitude'];
+      if (user != null) {
+        DocumentSnapshot userSnapshot =
+            await FirebaseFirestore.instance.collection('USER').doc(user.uid).get();
 
-      setState(() {
-        userLocation = LatLng(latitude, longitude);
-         print('User Location: Latitude: $latitude, Longitude: $longitude');
-    
-      });
+        if (userSnapshot.exists) {
+          GeoPoint locationGeoPoint = userSnapshot['location'] ?? GeoPoint(0.0, 0.0);
+
+          setState(() {
+            userLocation = LatLng(locationGeoPoint.latitude, locationGeoPoint.longitude);
+            print('User Location: Latitude: ${locationGeoPoint.latitude}, Longitude: ${locationGeoPoint.longitude}');
+          });
+        } else {
+          print('User document does not exist.');
+        }
+      } else {
+        print('No user is currently signed in.');
+      }
     } catch (e) {
       print('Error fetching user location: $e');
     }
   }
 
-   void fetchClinicDetails() async {
-  try {
-    // Replace 'CLINIC' with the actual name of your Firestore collection
-    QuerySnapshot clinicSnapshot =
-        await FirebaseFirestore.instance.collection('CLINIC').get();
+  void fetchClinicDetails() async {
+    try {
+      QuerySnapshot clinicSnapshot =
+          await FirebaseFirestore.instance.collection('CLINIC').get();
 
-    List<Clinic> clinicList = clinicSnapshot.docs.map((doc) {
-      // Replace 'name', 'clinicLocation', and 'imagePath' with the actual field names in your Firestore document
-      GeoPoint clinicGeoPoint = doc['clinicLocation'];
-      
-      double clinicLatitude = clinicGeoPoint.latitude;
-      double clinicLongitude = clinicGeoPoint.longitude;
+      List<Clinic> clinicList = clinicSnapshot.docs.map((doc) {
+        if (doc.exists) {
+          GeoPoint clinicGeoPoint = doc['clinicLocation'] ?? GeoPoint(0.0, 0.0);
+          double clinicLatitude = clinicGeoPoint.latitude;
+          double clinicLongitude = clinicGeoPoint.longitude;
 
-      // Print clinic location
-      print('Clinic Location: Latitude: $clinicLatitude, Longitude: $clinicLongitude');
+          print('Clinic Location: Latitude: $clinicLatitude, Longitude: $clinicLongitude');
 
-      return Clinic(
-        name: doc['clinicName'],
-        location: LatLng(clinicLatitude, clinicLongitude),
-        imagePath: doc['_profilePicUrl'],
-      );
-    }).toList();
+          return Clinic(
+            name: doc['clinicName'] ?? '',
+            location: LatLng(clinicLatitude, clinicLongitude),
+            imagePath: doc['_profilePicUrl'] ?? '',
+          );
+        } else {
+          print('Clinic document does not exist.');
+          return Clinic(name: '', location: LatLng(0.0, 0.0), imagePath: '');
+        }
+      }).toList();
 
-    setState(() {
-      clinics = clinicList;
-    });
-  } catch (e) {
-    print('Error fetching clinic details: $e');
+      setState(() {
+        clinics = clinicList;
+      });
+    } catch (e) {
+      print('Error fetching clinic details: $e');
+    }
   }
-}
-
 
   void fetchDoctorDetails() async {
     try {
-      // Replace 'DOCTOR' with the actual name of your Firestore collection
       QuerySnapshot doctorSnapshot =
           await FirebaseFirestore.instance.collection('DOCTOR').get();
 
       List<Doctor> doctorList = doctorSnapshot.docs.map((doc) {
-        // Replace 'name', 'specialization', and 'imagePath' with the actual field names in your Firestore document
-        return Doctor(
-          name: doc['Name'],
-          specialization: doc['Specialization'],
-          imagePath: doc['_profilePicUrl'],
-        );
+        if (doc.exists) {
+          GeoPoint doctorGeoPoint = doc['Location'] ?? GeoPoint(0.0, 0.0);
+          double doctorLatitude = doctorGeoPoint.latitude;
+          double doctorLongitude = doctorGeoPoint.longitude;
+
+          print('Doctor Location: Latitude: $doctorLatitude, Longitude: $doctorLongitude');
+
+          return Doctor(
+            name: doc['Name'] ?? '',
+            specialization: doc['Specialization'] ?? '',
+            imagePath: doc['_profilePicUrl'] ?? '',
+            location: LatLng(doctorLatitude, doctorLongitude),
+          );
+        } else {
+          print('Doctor document does not exist.');
+          return Doctor(name: '', specialization: '', imagePath: '', location: LatLng(0.0, 0.0));
+        }
       }).toList();
 
       setState(() {
@@ -113,8 +133,10 @@ class _HomeScreensState extends State<HomeScreens> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Home Page',
-        style: TextStyle(color: Colors.white),),
+        title: const Text(
+          'Home Page',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color.fromARGB(255, 1, 101, 252),
         flexibleSpace: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -142,8 +164,7 @@ class _HomeScreensState extends State<HomeScreens> {
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Search',
-                    hintStyle:
-                        TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
+                    hintStyle: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
                     border: InputBorder.none,
                   ),
                 ),
@@ -162,8 +183,7 @@ class _HomeScreensState extends State<HomeScreens> {
               scrollDirection: Axis.horizontal,
               itemCount: clinics.length,
               itemBuilder: (context, index) {
-                bool isNearby =
-                    userLocation != null && isClinicNearby(clinics[index].location);
+                bool isNearby = userLocation != null && isClinicNearby(clinics[index].location);
 
                 return Row(
                   children: [
@@ -175,8 +195,6 @@ class _HomeScreensState extends State<HomeScreens> {
             ),
           ),
           const SizedBox(height: 16.0),
-          // Your search bar widget
-          const SizedBox(height: 16.0),
           const Text(
             'Doctors Near You',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
@@ -186,7 +204,9 @@ class _HomeScreensState extends State<HomeScreens> {
             child: ListView.builder(
               itemCount: doctors.length,
               itemBuilder: (context, index) {
-                return buildDoctorCard(context, doctors[index]);
+                bool isNearby = userLocation != null && isDoctorNearby(doctors[index].location);
+
+                return buildDoctorCard(context, doctors[index], isNearby);
               },
             ),
           ),
@@ -195,7 +215,7 @@ class _HomeScreensState extends State<HomeScreens> {
     );
   }
 
-  Widget buildDoctorCard(BuildContext context, Doctor doctor) {
+  Widget buildDoctorCard(BuildContext context, Doctor doctor, bool isNearby) {
     return Container(
       width: 250, // Set the width of the card
       margin: const EdgeInsets.symmetric(horizontal: 8), // Adjust the horizontal margin for spacing
@@ -241,6 +261,19 @@ class _HomeScreensState extends State<HomeScreens> {
                     'Specialization: ${doctor.specialization}',
                     style: const TextStyle(fontSize: 14),
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Location: ${doctor.location.latitude}, ${doctor.location.longitude}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    isNearby ? 'Nearby' : 'Not Nearby',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isNearby ? Colors.green : Colors.red,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -271,6 +304,21 @@ class _HomeScreensState extends State<HomeScreens> {
       userLocation!.longitude,
       clinicLocation.latitude,
       clinicLocation.longitude,
+    );
+
+    return distance <= 1500; // 1.5 kms in meters
+  }
+
+  bool isDoctorNearby(LatLng doctorLocation) {
+    if (userLocation == null) {
+      return false;
+    }
+
+    double distance = Geolocator.distanceBetween(
+      userLocation!.latitude,
+      userLocation!.longitude,
+      doctorLocation.latitude,
+      doctorLocation.longitude,
     );
 
     return distance <= 1500; // 1.5 kms in meters

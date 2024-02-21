@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_application_1/pending.dart';
+import 'package:flutter_application_1/Doctor_pages/pending.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_application_1/location1.dart';
 import 'package:flutter_application_1/Admin_pages/admin.dart';
@@ -19,8 +19,10 @@ class _ProfileState extends State<Profile> {
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController verificationNumberController = TextEditingController();
+  TextEditingController registrationNumberController = TextEditingController();
   String userType = 'Default User';
-
+  
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,7 +130,7 @@ class _ProfileState extends State<Profile> {
                         userType = newValue!;
                       });
                     },
-                    items: <String>['Default User', 'Clinic', 'Admin', 'Doctor']
+                    items: <String>['Default User', 'Clinic', 'Doctor']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -190,7 +192,7 @@ class _ProfileState extends State<Profile> {
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           child: TextField(
-                            controller: verificationNumberController,
+                            controller: registrationNumberController,
                             keyboardType: TextInputType.text,
                             decoration: InputDecoration(
                               hintText: 'Enter your Registration number',
@@ -209,7 +211,7 @@ class _ProfileState extends State<Profile> {
                       // Get the values from the text controllers
                       String name = nameController.text;
                       String verificationNumber = verificationNumberController.text;
-
+                      String registrationNumber = registrationNumberController.text;
                       // Get the currently signed-in user
                       User? user = FirebaseAuth.instance.currentUser;
 
@@ -219,14 +221,16 @@ class _ProfileState extends State<Profile> {
                           // Save the profile information to Firestore
                           await FirebaseFirestore.instance.collection('USER').doc(user.uid).set({
                             'Name': name,
-                            'userType': userType,
+                            'userType': 'userType',
                             'verificationNumber': verificationNumber,
                             'status': 'pending',
                             if (userType == 'Doctor') 'verificationNumber': verificationNumber,
+                            if (userType == 'Clinic') 'registrationNumber': registrationNumber,
                           });
+                          
 
                           // Check if userType is Doctor and navigate to Admin page
-                          if (userType == 'Doctor') {
+                          if (userType == 'Doctor' || userType == 'Clinic' ) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) =>  PendingPage(userId: '',)));

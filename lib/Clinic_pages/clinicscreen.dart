@@ -3,7 +3,7 @@ import 'package:flutter_application_1/Clinic_pages/clinicprofile.dart';
 import 'package:flutter_application_1/Clinic_pages/postscreen.dart';
 
 class ClinicScreen extends StatefulWidget {
-  const ClinicScreen({super.key});
+  const ClinicScreen({super.key, required String userId});
 
   @override
   State<ClinicScreen> createState() => _ClinicScreenState();

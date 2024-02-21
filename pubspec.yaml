@@ -53,6 +53,7 @@ dependencies:
   geocoding: ^2.1.1
   shared_preferences: ^2.2.2
   provider: ^6.1.1
+  firebase_app_check: ^0.2.1+14
 
  
 
