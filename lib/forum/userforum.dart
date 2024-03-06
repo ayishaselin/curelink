@@ -1,6 +1,6 @@
- import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class UserForumScreen extends StatefulWidget {
@@ -10,28 +10,8 @@ class UserForumScreen extends StatefulWidget {
 
 class _UserForumScreenState extends State<UserForumScreen> {
   TextEditingController _questionController = TextEditingController();
-
-  void _sendQuestion() async {
-    String question = _questionController.text;
-    String userId = FirebaseAuth.instance.currentUser!.uid;
-
-    // Save question to Firebase
-    await FirebaseFirestore.instance.collection('FORUM').add({
-      'question': question,
-      'userId': userId,
-       
-      'replies': [], // Initialize replies as an empty array
-    });
-
-    // Optionally, you can clear the input field after sending the question
-    _questionController.clear();
-  }
-
-  Future<String> _getUserName(String userId) async {
-    var userDoc =
-        await FirebaseFirestore.instance.collection('USER').doc(userId).get();
-    return userDoc['Name'];
-  }
+  TextEditingController _searchController = TextEditingController();
+  late Stream<QuerySnapshot> filteredQuestions = FirebaseFirestore.instance.collection('FORUM').snapshots();
 
   @override
   Widget build(BuildContext context) {
@@ -45,36 +25,102 @@ class _UserForumScreenState extends State<UserForumScreen> {
       ),
       body: Column(
         children: [
-          TextField(
-            controller: _questionController,
-            decoration: InputDecoration(
-              hintText: 'Ask a question...',
+          const SizedBox(height: 16.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    _filterQuestions(value);
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    hintStyle:
+                        TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 16.0),
-          ElevatedButton(
-            onPressed: _sendQuestion,
-             
-            child: Text('Send', style: GoogleFonts.inter(color: Colors.white)),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(15),
-                      backgroundColor: const Color.fromARGB(255, 1, 101, 252),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),),
           Expanded(
             child: _buildQuestionList(),
+          ),
+           Divider(
+            thickness: 1.0,
+            color: Colors.grey,
+            height: 10.0,
+          ),
+          // Bottom row with the asking TextField, "Send" button, and "Cancel" button
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _questionController,
+                    decoration: InputDecoration(
+                      hintText: 'Ask a question...',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8.0),
+                ElevatedButton(
+                  onPressed: _sendQuestion,
+                  child: Text('Send', style: GoogleFonts.inter(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(15),
+                    backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8.0),
+                ElevatedButton(
+                  onPressed: _cancelQuestion,
+                  child: Text('Cancel', style: GoogleFonts.inter(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(15),
+                    backgroundColor: Color.fromARGB(255, 1, 101, 252),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
+  void _sendQuestion() async {
+    String question = _questionController.text;
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    await FirebaseFirestore.instance.collection('FORUM').add({
+      'question': question,
+      'userId': userId,
+      'replies': [],
+    });
+
+    _questionController.clear();
+  }
+
   Widget _buildQuestionList() {
     return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('FORUM').snapshots(),
+      stream: filteredQuestions,
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (!snapshot.hasData) {
           return CircularProgressIndicator();
@@ -96,7 +142,6 @@ class _UserForumScreenState extends State<UserForumScreen> {
     var forumData = forumDoc.data() as Map<String, dynamic>;
     var question = forumData['question'];
     var userId = forumData['userId'];
-     
     var replies = forumData['replies'] ?? [];
 
     return FutureBuilder(
@@ -113,8 +158,8 @@ class _UserForumScreenState extends State<UserForumScreen> {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Asked by: $userName'), // Display user's name
-               
+              Text('Asked by: $userName'),
+
               if (replies.isNotEmpty)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,5 +173,28 @@ class _UserForumScreenState extends State<UserForumScreen> {
         );
       },
     );
+  }
+
+  Future<String> _getUserName(String userId) async {
+    var userDoc =
+        await FirebaseFirestore.instance.collection('USER').doc(userId).get();
+    return userDoc['Name'];
+  }
+
+  void _filterQuestions(String keyword) {
+    setState(() {
+      // Update the StreamBuilder's stream to filter questions based on the keyword
+      filteredQuestions = FirebaseFirestore.instance
+          .collection('FORUM')
+          .orderBy('question')
+          .startAt([keyword])
+          .endAt([keyword + '\uf8ff'])
+          .snapshots();
+    });
+  }
+
+  void _cancelQuestion() {
+    // Clear the asking TextField when the "Cancel" button is pressed
+    _questionController.clear();
   }
 }

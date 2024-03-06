@@ -138,27 +138,7 @@ void _debugPrintPosts() {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 16.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search',
-                    hintStyle:
-                        TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-            ),
-          ),
+           
           const SizedBox(height: 16.0),
           const Text(
             'Doctor Speciality',
