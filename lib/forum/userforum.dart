@@ -4,24 +4,30 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class UserForumScreen extends StatefulWidget {
+  const UserForumScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _UserForumScreenState createState() => _UserForumScreenState();
 }
 
 class _UserForumScreenState extends State<UserForumScreen> {
-  TextEditingController _questionController = TextEditingController();
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _questionController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   late Stream<QuerySnapshot> filteredQuestions = FirebaseFirestore.instance.collection('FORUM').snapshots();
+
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'User Forum',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color.fromARGB(255, 1, 101, 252),
+        backgroundColor: const Color.fromARGB(255, 1, 101, 252),
       ),
       body: Column(
         children: [
@@ -40,10 +46,11 @@ class _UserForumScreenState extends State<UserForumScreen> {
                   onChanged: (value) {
                     _filterQuestions(value);
                   },
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Search',
-                    hintStyle:
-                        TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
+                    suffixIcon: Icon(Icons.search),
+                    hintStyle: TextStyle(
+                        color: Colors.grey, fontWeight: FontWeight.w400),
                     border: InputBorder.none,
                   ),
                 ),
@@ -51,9 +58,17 @@ class _UserForumScreenState extends State<UserForumScreen> {
             ),
           ),
           Expanded(
-            child: _buildQuestionList(),
+            child: Stack(
+              children: [
+                _buildQuestionList(),
+                if (_isLoading)
+                  const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+              ],
+            ),
           ),
-           Divider(
+          const Divider(
             thickness: 1.0,
             color: Colors.grey,
             height: 10.0,
@@ -66,7 +81,7 @@ class _UserForumScreenState extends State<UserForumScreen> {
                 Expanded(
                   child: TextField(
                     controller: _questionController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Ask a question...',
                     ),
                   ),
@@ -74,7 +89,6 @@ class _UserForumScreenState extends State<UserForumScreen> {
                 const SizedBox(width: 8.0),
                 ElevatedButton(
                   onPressed: _sendQuestion,
-                  child: Text('Send', style: GoogleFonts.inter(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.all(15),
                     backgroundColor: const Color.fromARGB(255, 1, 101, 252),
@@ -83,19 +97,22 @@ class _UserForumScreenState extends State<UserForumScreen> {
                       fontWeight: FontWeight.normal,
                     ),
                   ),
+                  child: Text('Send',
+                      style: GoogleFonts.inter(color: Colors.white)),
                 ),
                 const SizedBox(width: 8.0),
                 ElevatedButton(
                   onPressed: _cancelQuestion,
-                  child: Text('Cancel', style: GoogleFonts.inter(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.all(15),
-                    backgroundColor: Color.fromARGB(255, 1, 101, 252),
+                    backgroundColor: const Color.fromARGB(255, 1, 101, 252),
                     textStyle: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
                     ),
                   ),
+                  child: Text('Cancel',
+                      style: GoogleFonts.inter(color: Colors.white)),
                 ),
               ],
             ),
@@ -122,8 +139,17 @@ class _UserForumScreenState extends State<UserForumScreen> {
     return StreamBuilder(
       stream: filteredQuestions,
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          _isLoading = true;
+          return const SizedBox(); // Return an empty widget while loading
+        } else {
+          _isLoading = false;
+        }
+
         if (!snapshot.hasData) {
-          return CircularProgressIndicator();
+          return const Center(
+            child: Text('No questions found'),
+          );
         }
 
         var forumDocs = snapshot.data!.docs;
@@ -148,27 +174,67 @@ class _UserForumScreenState extends State<UserForumScreen> {
       future: _getUserName(userId),
       builder: (context, AsyncSnapshot<String> userNameSnapshot) {
         if (userNameSnapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return const SizedBox(); // Return an empty widget while loading
         }
 
         var userName = userNameSnapshot.data;
 
-        return ListTile(
-          title: Text(question),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Asked by: $userName'),
-
-              if (replies.isNotEmpty)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Replies:'),
-                    for (var reply in replies) Text(reply),
-                  ],
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            padding: const EdgeInsets.all(12.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
                 ),
-            ],
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$question',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Asked by: $userName',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.normal,
+                    color: Colors.grey,
+                  ),
+                ),
+                if (replies.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Replies:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  for (var reply in replies) ...[
+                    Text(
+                      reply,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ],
+              ],
+            ),
           ),
         );
       },

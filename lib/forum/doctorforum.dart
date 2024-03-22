@@ -1,47 +1,88 @@
  import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class DoctorForumScreen extends StatelessWidget {
+class DoctorForumScreen extends StatefulWidget {
+  @override
+  _DoctorForumScreenState createState() => _DoctorForumScreenState();
+}
+
+class _DoctorForumScreenState extends State<DoctorForumScreen> {
+  late List<DocumentSnapshot> _docs = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Doctor Forum'),
+        automaticallyImplyLeading: false,
+        title: Text('Doctor Forum', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color.fromARGB(255, 1, 101, 252),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('FORUM').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
           }
 
-          // Display the list of questions and answers
-          List<DocumentSnapshot> docs = snapshot.data!.docs;
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text('No data available'));
+          }
+
+          _docs = snapshot.data!.docs;
+
           return ListView.builder(
-            itemCount: docs.length,
+            itemCount: _docs.length,
             itemBuilder: (context, index) {
-              Map<String, dynamic> data =
-                  docs[index].data() as Map<String, dynamic>;
-              return ListTile(
-                title: Text(data['question']),
-                subtitle: Text(
-                  data['replies'] != null
-                      ? data['replies'].join('\n')
-                      : 'No answer yet',
-                ),
-                trailing: ElevatedButton(
-                  onPressed: () {
-                    // Navigate to a reply screen or dialog
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DoctorReplyScreen(
-                          questionId: docs[index].id,
+              Map<String, dynamic> data = _docs[index].data() as Map<String, dynamic>;
+              String questionId = _docs[index].id;
+              return Card(
+                margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                child: ListTile(
+                  title: Text(data['question']),
+                  subtitle: Text(
+                    data['replies'] != null ? data['replies'].join('\n') : 'No answer yet',
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DoctorReplyScreen(questionId: questionId),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Reply',
+                          style: GoogleFonts.inter(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.all(13),
+                          backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+                          textStyle: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.normal,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(40.0),
+                          ),
+                          minimumSize: const Size(90, 0),
                         ),
                       ),
-                    );
-                  },
-                  child: Text('Reply'),
+                      SizedBox(width: 8.0),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _docs.removeAt(index);
+                          });
+                        },
+                        icon: Icon(Icons.close),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -55,8 +96,7 @@ class DoctorForumScreen extends StatelessWidget {
 class DoctorReplyScreen extends StatefulWidget {
   final String questionId;
 
-  const DoctorReplyScreen({Key? key, required this.questionId})
-      : super(key: key);
+  const DoctorReplyScreen({Key? key, required this.questionId}) : super(key: key);
 
   @override
   _DoctorReplyScreenState createState() => _DoctorReplyScreenState();
@@ -83,13 +123,14 @@ class _DoctorReplyScreenState extends State<DoctorReplyScreen> {
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
-                // Save the answer to the backend using widget.questionId
                 await saveAnswer(widget.questionId, answerController.text);
-
-                // Optionally, you can navigate back to the forum screen
                 Navigator.pop(context);
               },
-              child: Text('Submit Answer'),
+              child: Text('Submit Answer', style: GoogleFonts.inter(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(13),
+                backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+              ),
             ),
           ],
         ),
@@ -99,16 +140,12 @@ class _DoctorReplyScreenState extends State<DoctorReplyScreen> {
 
   Future<void> saveAnswer(String questionId, String answer) async {
     try {
-      // Update the 'replies' field in the FORUM collection
       await FirebaseFirestore.instance
           .collection('FORUM')
           .doc(questionId)
-          .update({
-        'replies': FieldValue.arrayUnion([answer]),
-      });
+          .update({'replies': FieldValue.arrayUnion([answer])});
     } catch (e) {
       print('Error saving answer: $e');
-      // Handle error
     }
   }
 }

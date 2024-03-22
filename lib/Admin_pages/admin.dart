@@ -1,9 +1,9 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application_1/Signinup/Signin.dart';
 import 'package:flutter_application_1/Doctor_pages/pending.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class AdminPage extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -21,6 +21,7 @@ class AdminPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(height: 8.0,),
             Text(
               'Doctor and Clinic Verification Requests',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -29,26 +30,29 @@ class AdminPage extends StatelessWidget {
             Expanded(
               child: PendingRequestsList(),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                await _auth.signOut();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Signin(userId: '')),
-                );
-              },
-              child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(15),
-                backgroundColor: const Color.fromARGB(255, 1, 101, 252),
-                textStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
+            Padding(
+              padding: const EdgeInsets.only(bottom:20),
+              child: ElevatedButton(
+                onPressed: () async {
+                  await _auth.signOut();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Signin(userId: '')),
+                  );
+                },
+                child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.all(15),
+                  backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(40.0),
+                  ),
+                  minimumSize: const Size(380, 0),
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(40.0),
-                ),
-                minimumSize: const Size(380, 0),
               ),
             ),
           ],
@@ -58,130 +62,93 @@ class AdminPage extends StatelessWidget {
   }
 }
 
-class PendingRequestsList extends StatelessWidget {
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance
+class PendingRequestsList extends StatefulWidget {
+  @override
+  _PendingRequestsListState createState() => _PendingRequestsListState();
+}
+
+class _PendingRequestsListState extends State<PendingRequestsList> {
+  List<DocumentSnapshot> _requestsList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPendingRequests();
+  }
+
+  Future<void> _fetchPendingRequests() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('USER')
           .where('status', isEqualTo: 'pending')
-          .snapshots(),
-      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          showErrorSnackBar(context, 'Error: ${snapshot.error}');
-          return Container();
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.data!.docs.isEmpty) {
-          return Center(child: Text('No pending requests.'));
-        }
-
-        return ListView.builder(
-          itemCount: snapshot.data!.docs.length,
-          itemBuilder: (context, index) {
-            var request = snapshot.data!.docs[index];
-
-            return RequestCard(
-              userName: request['Name'],
-              verificationNumber: request['verificationNumber'],
-              registrationNumber: request['registrationNumber'],
-              userType: request['userType'],
-              acceptCallback: () => acceptVerification(
-                context,
-                request['Name'],
-                request['verificationNumber'],
-                request['registrationNumber'],
-                request['userType'],
-              ),
-              rejectCallback: () => rejectVerification(context, request['Name']),
-            );
-          },
-        );
-      },
-    );
+          .get();
+      setState(() {
+        _requestsList = querySnapshot.docs;
+      });
+    } catch (e) {
+      print('Error fetching pending requests: $e');
+    }
   }
 
-  void showErrorSnackBar(BuildContext context, String errorMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(errorMessage),
-        duration: Duration(seconds: 3),
-      ),
-    );
+  @override
+  Widget build(BuildContext context) {
+    return _requestsList.isEmpty
+        ? Center(child: Text('No pending verification'))
+        : ListView.builder(
+            itemCount: _requestsList.length,
+            itemBuilder: (context, index) {
+              var request = _requestsList[index];
+
+              return RequestCard(
+                userName: request['Name'],
+                verificationNumber: request['verificationNumber'],
+                registrationNumber: request['registrationNumber'],
+                userType: request['userType'],
+                acceptCallback: () => acceptVerification(context, request),
+                rejectCallback: () => rejectVerification(context, request['Name']),
+              );
+            },
+          );
   }
 
-    Future<void> acceptVerification(
-  BuildContext context,
-  String userName,
-  String verificationNumber,
-  String? registrationNumber,
-  String userType,
-) async {
+  void rejectVerification(BuildContext context, String userName) {
+    showSnackBar(context, 'Verification rejected for $userName');
+    setState(() {
+      _requestsList.removeWhere((request) => request['Name'] == userName);
+    });
+  }
+
+ Future<void> acceptVerification(BuildContext context, DocumentSnapshot request) async {
   try {
     showSnackBar(context, 'Accepting verification...');
 
-    await FirebaseFirestore.instance
-        .collection('USER')
-        .where('Name', isEqualTo: userName)
-        .get()
-        .then((snapshot) async {
-      if (snapshot.docs.isNotEmpty) {
-        String userId = snapshot.docs.first.id;
-        var userData = snapshot.docs.first.data() as Map<String, dynamic>;
+    String userId = request.id;
+    String userType = request['userType'] as String;
 
-        print('Original userType: ${userData['userType']}');
+    // Check if the 'verificationNumber' field is not null before casting it
+    String? verificationNumber = request['verificationNumber'] as String?;
 
-        // Move the user to the appropriate collection based on userType
-        if (userType == 'Doctor') {
-          await FirebaseFirestore.instance
-              .collection('DOCTOR')
-              .doc(userId)
-              .set(userData);
-          
-          // Set the 'role' field in the 'DOCTOR' collection
-          await FirebaseFirestore.instance
-              .collection('DOCTOR')
-              .doc(userId)
-              .update({'role': 'Doctor'});
-        } else if (userType == 'Clinic') {
-          await FirebaseFirestore.instance
-              .collection('CLINIC')
-              .doc(userId)
-              .set(userData);
-          
-          // Set the 'role' field in the 'CLINIC' collection
-          await FirebaseFirestore.instance
-              .collection('CLINIC')
-              .doc(userId)
-              .update({'role': 'Clinic'});
-        }
+    if (userType != 'Doctor' && userType != 'Clinic') {
+      throw ArgumentError('Invalid userType: $userType');
+    }
 
-        // Update USER document with accepted verification details
-        await FirebaseFirestore.instance.collection('USER').doc(userId).update({
-          'userType': userType,
-          'verificationNumber': verificationNumber,
-          'status': 'Accepted',
-          'role': userType == 'Doctor' ? 'Doctor' : 'Clinic', // Update the 'role' field in the 'USER' collection
-        });
-        if (userType == 'Doctor') {
-          await FirebaseFirestore.instance
-              .collection('DOCTOR')
-              .doc(userId)
-              .set(userData);
-        } else if (userType == 'Clinic') {
-          await FirebaseFirestore.instance
-              .collection('CLINIC')
-              .doc(userId)
-              .set(userData);
+    // Move the user to the appropriate collection based on userType
+    await moveUserToCollection(userType, userId, request.data()! as Map<String, dynamic>);
 
-        print('Updated userType: $userType');
+    // Update USER document with accepted verification details
+    await updateVerificationStatus(userId, userType, verificationNumber ?? '');
 
-        showSnackBar(context, 'Verification accepted for $userName');
-      }
-  }});
+    // Remove the accepted request from the list
+    setState(() {
+      _requestsList.remove(request);
+    });
+
+    // If the userType is Clinic, update the role to "Clinic" in the USER document
+    if (userType == 'Clinic') {
+      await FirebaseFirestore.instance.collection('USER').doc(userId).update({'role': 'Clinic'});
+    }
+
+    showSnackBar(context, 'Verification accepted for ${request['Name']}');
   } catch (e) {
     print('Error accepting verification: $e');
     showSnackBar(context, 'Error accepting verification. Please try again.');
@@ -189,12 +156,30 @@ class PendingRequestsList extends StatelessWidget {
 }
 
 
-  void rejectVerification(BuildContext context, String userName) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => PendingPage(userId: '')),
-    );
-    showSnackBar(context, 'Verification rejected for $userName');
+
+
+  Future<void> moveUserToCollection(String userType, String userId, Map<String, dynamic> userData) async {
+    late CollectionReference collection; // Initialize with a default value
+
+    if (userType == 'Doctor') {
+      collection = FirebaseFirestore.instance.collection('DOCTOR');
+    } else if (userType == 'Clinic') {
+      collection = FirebaseFirestore.instance.collection('CLINIC');
+    } else {
+      throw ArgumentError('Invalid userType: $userType'); // Throw an error for invalid userType
+    }
+
+    await collection.doc(userId).set(userData);
+    await collection.doc(userId).update({'role': userType});
+  }
+
+  Future<void> updateVerificationStatus(String userId, String userType, String verificationNumber) async {
+    await FirebaseFirestore.instance.collection('USER').doc(userId).update({
+      'userType': userType,
+      'verificationNumber': verificationNumber,
+      'status': 'Accepted',
+      'role': userType, // Update the 'role' field in the 'USER' collection
+    });
   }
 
   void showSnackBar(BuildContext context, String message) {
@@ -208,8 +193,8 @@ class PendingRequestsList extends StatelessWidget {
 }
 
 class RequestCard extends StatelessWidget {
-  final String userName;
-  final String verificationNumber;
+  final String? userName;
+  final String? verificationNumber;
   final String? registrationNumber;
   final String userType;
   final VoidCallback acceptCallback;
@@ -219,44 +204,56 @@ class RequestCard extends StatelessWidget {
     Key? key,
     required this.userName,
     required this.verificationNumber,
+    required this.registrationNumber,
+    required this.userType,
     required this.acceptCallback,
     required this.rejectCallback,
-    required this.userType,
-    this.registrationNumber,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 4, // Add elevation for shadow
       margin: const EdgeInsets.all(10),
+      color: Colors.white, // Set background color to white
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20), // Set border radius
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'User Name: $userName',
+              'User Name: ${userName ?? "N/A"}',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-             
-            Text('Verification Number: $verificationNumber'),
-            
-              Text('Registration Number: $registrationNumber'),
+            Text('Verification Number: ${verificationNumber ?? "N/A"}'),
+            Text('Registration Number: ${userType == "Clinic" ? registrationNumber ?? "N/A" : "N/A"}'),
             SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: acceptCallback,
-                  child: Text('Accept'),
-                ),
-                SizedBox(width: 20),
-                ElevatedButton(
-                  onPressed: rejectCallback,
-                  child: Text('Reject'),
-                ),
-              ],
-            ),
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    ElevatedButton(
+      onPressed: acceptCallback,
+      child: Text('Accept', style: TextStyle(color: Colors.white)),
+      style: ElevatedButton.styleFrom(
+        primary: Color.fromARGB(255, 3, 72, 128), // Background color
+        textStyle: TextStyle(color: Colors.white), // Text color
+      ),
+    ),
+    SizedBox(width: 20),
+    ElevatedButton(
+      onPressed: rejectCallback,
+      child: Text('Reject', style: TextStyle(color: Colors.white)),
+      style: ElevatedButton.styleFrom(
+        primary: Color.fromARGB(255, 189, 12, 12), // Background color
+        textStyle: TextStyle(color: Colors.white), // Text color
+      ),
+    ),
+  ],
+),
+
           ],
         ),
       ),

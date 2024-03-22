@@ -87,11 +87,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     : const SizedBox.shrink(),
               ),
               const SizedBox(height: 16.0),
-              Text(
-                'Timestamp: ${post.timestamp.toDate()}',
-                style: TextStyle(fontSize: 16.0),
-                textAlign: TextAlign.center,
-              ),
+               
             ],
           ),
         const SizedBox(height: 16.0),
@@ -139,25 +135,7 @@ void _debugPrintPosts() {
       body: Column(
         children: [
            
-          const SizedBox(height: 16.0),
-          const Text(
-            'Doctor Speciality',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 16.0),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                buildIconButton('Dentist', 'images/dentist.png'),
-                buildIconButton('Cardiologist', 'images/cardio.png'),
-                buildIconButton('Orthopedist', 'images/ortho.png'),
-                buildIconButton('Neurologist', 'images/neuro.png'),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16.0),
+           
           const Text(
             'Clinic Updates',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),

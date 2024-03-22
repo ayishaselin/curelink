@@ -349,13 +349,17 @@ Future<void> signInWithGoogle(BuildContext context) async {
                     onTap: () async{
                        await signInWithGoogle(context);
                     },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
-                      child: Image.asset(
-                        'images/google.png', // Replace with your image asset path
-                        height: 50,
-                        width: 50,
+                    child:  Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 7),
+                      child:  Text(
+          'Sign In with Google',
+           
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
                       ),
+        ),
                     ),
                   ),
                   

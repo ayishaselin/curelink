@@ -31,6 +31,7 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
   String _profilePicUrl = '';
   late Key _circleAvatarKey = UniqueKey();
   String _doctorLocation = '';
+  List<bool> _availability = List.filled(7, false);
 
   @override
   void initState() {
@@ -52,6 +53,13 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
             timingController.text = doctorDoc['Timing'] ?? '';
             locationController.text = doctorDoc['Location'] ?? '';
             _profilePicUrl = doctorDoc['ProfilePicUrl'] ?? '';
+
+            List<dynamic>? days = doctorDoc['Availability'];
+            if (days != null) {
+              for (int i = 0; i < 7; i++) {
+                _availability[i] = days.contains(i);
+              }
+            }
           });
         }
       }
@@ -75,7 +83,9 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
           'Specialization': specializationController.text,
           'Bio': bioController.text,
           'Timing': timingController.text,
-          // 'Location': locationController.text,
+          'Location':  _doctorLocation,
+          'Availability': _availability,
+          // Remove 'TimeSlots' update
           // Add more fields as needed
         });
 
@@ -117,7 +127,7 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
         }
       }
     } catch (e) {
-      print('Error in _pickAndCropImage: $e');
+      print('Error picking and cropping image: $e');
       // Optionally, show an error message to the user
     }
   }
@@ -146,90 +156,48 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
     }
   }
 
-Future<void> _getLocation(BuildContext context) async {
-  Location locationService = Location(); // Rename the variable to locationService
+  Future<String?> _askForLocation() async {
+    try {
+      Location location = Location();
 
-  bool _serviceEnabled;
-  PermissionStatus _permissionGranted;
-  LocationData _locationData;
+      bool _serviceEnabled;
+      PermissionStatus _permissionGranted;
+      LocationData _locationData;
 
-  // Check if location service is enabled
-  _serviceEnabled = await locationService.serviceEnabled();
-  if (!_serviceEnabled) {
-    print("Location service is not enabled. Requesting service...");
-    _serviceEnabled = await locationService.requestService();
-    if (!_serviceEnabled) {
-      print("Location service request denied.");
-      return;
+      _serviceEnabled = await location.serviceEnabled();
+      if (!_serviceEnabled) {
+        _serviceEnabled = await location.requestService();
+        if (!_serviceEnabled) {
+          // Location service request denied.
+          return null;
+        }
+      }
+
+      _permissionGranted = await location.hasPermission();
+      if (_permissionGranted == PermissionStatus.denied) {
+        _permissionGranted = await location.requestPermission();
+        if (_permissionGranted != PermissionStatus.granted) {
+          // Location permission request denied.
+          return null;
+        }
+      }
+
+      _locationData = await location.getLocation();
+      print("Location: ${_locationData.latitude}, ${_locationData.longitude}");
+      return "${_locationData.latitude}, ${_locationData.longitude}";
+    } catch (e) {
+      print("Error getting location: $e");
+      return null;
     }
   }
-
-  // Check if permissions are granted
-  _permissionGranted = await locationService.hasPermission();
-  if (_permissionGranted == PermissionStatus.denied) {
-    print("Location permission is denied. Requesting permission...");
-    _permissionGranted = await locationService.requestPermission();
-    if (_permissionGranted != PermissionStatus.granted) {
-      print("Location permission request denied.");
-      return;
-    }
-  }
-
-try {
-  _locationData = await locationService.getLocation();
-  print("Location: ${_locationData.latitude}, ${_locationData.longitude}");
-
-  // Check for nullability and provide default values if needed
-  double latitude = _locationData.latitude ?? 0.0;
-  double longitude = _locationData.longitude ?? 0.0;
-
-  // Store location data in Firestore as GeoPoint
-  await _storeLocation(latitude, longitude);
-
-  // Here you can handle the location data (e.g., update the state, send to backend, etc.)
-} catch (locationError) {
-  print('Error getting location: $locationError');
-}
- catch (locationError) {
-    print('Error getting location: $locationError');
-  }
-
-  try {
-    // Additional error handling for storage can be added if needed
-  } catch (storeError) {
-    print('Error storing location: $storeError');
-  }
-}
-
-
-   
-
-Future<void> _storeLocation(double clinicLatitude, double clinicLongitude) async {
-  try {
-    // Get the current user
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      // Replace 'USER' with the collection you created in Firestore
-      await FirebaseFirestore.instance.collection('DOCTOR').doc(user.uid).update({
-        'Location': GeoPoint(clinicLatitude, clinicLongitude),
-      });
-
-      print('Location stored for user ${user.uid} in Firestore');
-    } else {
-      print('No user is currently signed in.');
-    }
-  } catch (e) {
-    print('Failed to store location: $e');
-  }
-}
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Doctor Profile'),
+        automaticallyImplyLeading: false,
+        title: const Text('Doctor Profile',style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color.fromARGB(255, 1, 101, 252),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -247,7 +215,7 @@ Future<void> _storeLocation(double clinicLatitude, double clinicLongitude) async
                       key: _circleAvatarKey,
                       radius: 50.0,
                       backgroundImage: _profilePicUrl.isNotEmpty
-                          ? CachedNetworkImageProvider(_profilePicUrl)
+                     ? CachedNetworkImageProvider(_profilePicUrl)
                           : const AssetImage('images/profile.png')
                               as ImageProvider,
                     ),
@@ -288,14 +256,42 @@ Future<void> _storeLocation(double clinicLatitude, double clinicLongitude) async
               const SizedBox(height: 16.0),
               TextField(
                 controller: timingController,
-                decoration: const InputDecoration(labelText: 'Timing'),
+                decoration: const InputDecoration(labelText: 'Give the available timing accurately'),
+              ),
+              const SizedBox(height: 16.0),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    for (int i = 0; i < 7; i++)
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _availability[i],
+                            onChanged: (value) {
+                              setState(() {
+                                _availability[i] = value!;
+                              });
+                            },
+                          ),
+                          Text(_getWeekday(i)),
+                        ],
+                      ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () async {
-                  await _getLocation(context);
+                  String? doctorLocation = await _askForLocation();
+                  if (doctorLocation != null) {
+                    setState(() {
+                      _doctorLocation = doctorLocation;
+                    });
+                  }
                 },
-                child: Text('Get Current Location', style: GoogleFonts.inter(color: Colors.white)),
+                child: Text('Ask for Location', style: GoogleFonts.inter(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.all(15),
                   backgroundColor: const Color.fromARGB(255, 1, 101, 252),
@@ -309,7 +305,7 @@ Future<void> _storeLocation(double clinicLatitude, double clinicLongitude) async
                   minimumSize: const Size(380, 0),
                 ),
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 8.0),
               ElevatedButton(
                 onPressed: () async {
                   await _saveDoctorInformation();
@@ -353,5 +349,26 @@ Future<void> _storeLocation(double clinicLatitude, double clinicLongitude) async
         ),
       ),
     );
+  }
+
+  String _getWeekday(int index) {
+    switch (index) {
+      case 0:
+        return 'Monday';
+      case 1: 
+        return 'Tuesday';
+      case 2:
+        return 'Wednesday';
+      case 3:
+        return 'Thursday';
+      case 4:
+        return 'Friday';
+      case 5:
+        return 'Saturday';
+      case 6:
+        return 'Sunday';
+      default:
+        return '';
+    }
   }
 }

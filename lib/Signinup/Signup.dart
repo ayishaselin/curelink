@@ -52,7 +52,7 @@ class _SignUpState extends State<SignUp> {
 
       // Store additional user data in Firestore
       await _firestore.collection('USER').doc(userId).set({
-        'Name': nameController.text,
+         
         'Email': emailController.text,
         'PhoneNumber': PhoneController.text,
         // Add other fields as needed
@@ -158,32 +158,8 @@ Future<void> signInWithGoogle(BuildContext context) async {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Name',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.normal,
-                        fontSize: 16.0,
-                      ),
-                    ),
-                    const SizedBox(height: 7.0),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: TextField(
-                        controller: nameController,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter your name',
-                          hintStyle: TextStyle(color: Colors.grey),
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                     
+                     
               const SizedBox(height: 16.0),
               Container(
                 child: Column(
@@ -397,12 +373,16 @@ Future<void> signInWithGoogle(BuildContext context) async {
                         await signInWithGoogle(context);
                     },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
-                      child: Image.asset(
-                        'images/google.png',
-                        height: 50,
-                        width: 50,
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 7),
+                      child:  Text(
+          'Sign In with Google',
+           
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
                       ),
+        ),
                     ),
                   ),
                    
@@ -411,7 +391,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
               const SizedBox(height: 15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
+                 
                 children: [
                   const Text(
                     'Already have an account?',
@@ -449,7 +429,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
             ],
           ),
         ),
-      ),
-    );
+            ],
+    ))));
   }
 }

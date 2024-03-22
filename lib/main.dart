@@ -5,6 +5,7 @@ import 'package:flutter_application_1/Clinic_pages/clinicscreen.dart';
 import 'package:flutter_application_1/Doctor_pages/doctorscreen.dart';
  
 import 'package:flutter_application_1/Intro_pages/intro1.dart';
+import 'package:flutter_application_1/User_pages/home_page.dart';
 import 'package:flutter_application_1/location1.dart';
 
 

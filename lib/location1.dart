@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/User_pages/navigationbar.dart';
@@ -9,7 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class LocationScreen extends StatelessWidget {
   final String userId;
-  const LocationScreen({Key? key, required this.userId});
+
+  const LocationScreen({Key? key, required this.userId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -68,22 +68,18 @@ class LocationScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 25.0),
-             
           ],
         ),
       ),
     );
   }
 
-  Future<void> _getLocation(BuildContext context) async {
-    Location location = new Location();
+Future<void> _getLocation(BuildContext context) async {
+  Location location = Location();
 
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
-
+  try {
     // Check if location service is enabled
-    _serviceEnabled = await location.serviceEnabled();
+    bool _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
       print("Location service is not enabled. Requesting service...");
       _serviceEnabled = await location.requestService();
@@ -94,7 +90,7 @@ class LocationScreen extends StatelessWidget {
     }
 
     // Check if permissions are granted
-    _permissionGranted = await location.hasPermission();
+    PermissionStatus _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       print("Location permission is denied. Requesting permission...");
       _permissionGranted = await location.requestPermission();
@@ -104,50 +100,45 @@ class LocationScreen extends StatelessWidget {
       }
     }
 
-    try {
-      _locationData = await location.getLocation();
-      print("Location: ${_locationData.latitude}, ${_locationData.longitude}");
+    // Get the location
+    LocationData _locationData = await location.getLocation();
+    print("Location: ${_locationData.latitude}, ${_locationData.longitude}");
 
-      // Store location data in Firestore
-      await _storeLocation(_locationData.latitude, _locationData.longitude);
+    // Store location data in Firestore
+    await _storeLocation(_locationData.latitude, _locationData.longitude);
 
-      // Here you can handle the location data (e.g., update the state, send to backend, etc.)
-    } catch (e) {
-      print("Failed to get location: $e");
-    }
-     Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Navigation(
-                  
-                  userId: userId,
-                  
-                ),
-              ),
-            );
+    // Navigate to the main screen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Navigation(
+          userId: userId,
+        ),
+      ),
+    );
+  } catch (e) {
+    print("Error getting location: $e");
+    // Handle the error gracefully, show a message to the user, or perform any necessary actions.
   }
+}
 
-  Future<void> _storeLocation(latitude, longitude) async {
+Future<void> _storeLocation(double? latitude, double? longitude) async {
   try {
     // Get the current user
     User? user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
+    if (user != null && latitude != null && longitude != null) {
       // Replace 'USER' with the collection you created in Firestore
       await FirebaseFirestore.instance.collection('USER').doc(user.uid).update({
         'location': GeoPoint(latitude, longitude),
       });
 
       print('Location stored for user ${user.uid} in Firestore');
-       
-      
     } else {
-      print('No user is currently signed in.');
+      print('No user is currently signed in or latitude/longitude is null.');
     }
   } catch (e) {
     print('Failed to store location: $e');
   }
 }
- 
-
 }

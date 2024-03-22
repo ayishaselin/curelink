@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -133,33 +134,93 @@ Future<void> _uploadAndSavePost() async {
 }
 
 
-   Widget _buildImagePicker() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          for (var post in _posts)
-            Column(
+ Widget _buildImagePicker() {
+  return SingleChildScrollView(
+    child: Column(
+      children: [
+        for (int index = 0; index < _posts.length; index++)
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 8.0),
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: Column(
               children: [
                 Container(
                   height: 350.0,
                   width: 350.0,
-                  child: post['image_url'] != null && post['image_url'] is String
-                      ? Image.network(post['image_url'] as String, fit: BoxFit.cover)
+                  child: _posts[index]['image_url'] != null &&
+                          _posts[index]['image_url'] is String
+                      ? Image.network(_posts[index]['image_url'] as String,
+                          fit: BoxFit.cover)
                       : const SizedBox.shrink(),
                 ),
                 const SizedBox(height: 16.0),
-                Text(
-                  'Timestamp: ${post['timestamp']}',
-                  style: TextStyle(fontSize: 16.0),
-                  textAlign: TextAlign.center,
+                ElevatedButton(
+                  onPressed: () => _deletePost(index),
+                  child: Text('Delete', style: GoogleFonts.inter(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(15),
+                    backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40.0),
+                    ),
+                    minimumSize: const Size(200, 0),
+                  ),
                 ),
               ],
             ),
-          const SizedBox(height: 16.0),
-        ],
-      ),
-    );
+          ),
+        const SizedBox(height: 16.0),
+      ],
+    ),
+  );
+}
+
+
+Future<void> _deletePost(int index) async {
+  try {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      final userId = currentUser.uid;
+      final userDocRef =
+          FirebaseFirestore.instance.collection('POSTS').doc(userId);
+
+      // Retrieve the post data to be deleted
+      Map<String, dynamic> postData = _posts[index];
+
+      // Remove the post from the list
+      setState(() {
+        _posts.removeAt(index);
+      });
+
+      // Update the user's document by removing the post from the 'posts' array
+      await userDocRef.update({
+        'posts': FieldValue.arrayRemove([postData])
+      });
+
+      // Optionally, you can delete the image from Firebase Storage as well
+      // Retrieve the image URL
+      final imageUrl = postData['image_url'] as String;
+      // Extract the image file name from the URL
+      final imageName = imageUrl.split('/').last;
+      // Create a reference to the image in Firebase Storage
+      final imageRef = FirebaseStorage.instance.ref().child('posts/$imageName');
+      // Delete the image from Firebase Storage
+      await imageRef.delete();
+    }
+  } catch (e) {
+    print('Error deleting post: $e');
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

@@ -9,7 +9,7 @@ import 'package:flutter_application_1/Admin_pages/admin.dart';
 class Profile extends StatefulWidget {
   final String userId;
 
-  const Profile({super.key, required this.userId});
+  const Profile({Key? key, required this.userId}) : super(key: key);
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -21,8 +21,7 @@ class _ProfileState extends State<Profile> {
   TextEditingController verificationNumberController = TextEditingController();
   TextEditingController registrationNumberController = TextEditingController();
   String userType = 'Default User';
-  
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -221,24 +220,22 @@ class _ProfileState extends State<Profile> {
                           // Save the profile information to Firestore
                           await FirebaseFirestore.instance.collection('USER').doc(user.uid).set({
                             'Name': name,
-                            'userType': 'userType',
-                            'verificationNumber': verificationNumber,
+                            'userType': userType, // Include userType in Firestore data
+                            'verificationNumber': userType == 'Doctor' ? verificationNumber : null,
+                            'registrationNumber': userType == 'Clinic' ? registrationNumber : null,
                             'status': 'pending',
-                            if (userType == 'Doctor') 'verificationNumber': verificationNumber,
-                            if (userType == 'Clinic') 'registrationNumber': registrationNumber,
                           });
-                          
 
-                          // Check if userType is Doctor and navigate to Admin page
-                          if (userType == 'Doctor' || userType == 'Clinic' ) {
+                          // Navigate to the appropriate screen based on userType
+                          if (userType == 'Doctor' || userType == 'Clinic') {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) =>  PendingPage(userId: '',)));
+                              MaterialPageRoute(builder: (context) => PendingPage(userId: widget.userId)),
+                            );
                           } else {
-                            // Navigate to the next screen (you can adjust this part based on your logic)
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => LocationScreen(userId: '')),
+                              MaterialPageRoute(builder: (context) => LocationScreen(userId: widget.userId)),
                             );
                           }
                         } catch (e) {
@@ -274,10 +271,9 @@ class _ProfileState extends State<Profile> {
                 ],
               ),
             )
-            ],
-          ),
+          ],
         ),
-      );
-    
+      ),
+    );
   }
 }
