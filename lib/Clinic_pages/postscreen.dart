@@ -226,8 +226,9 @@ Future<void> _deletePost(int index) async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Post Screen'),
+        title: const Text('Post Screen', style: TextStyle(color: Colors.white),),
         automaticallyImplyLeading: false,
+        backgroundColor: Color.fromARGB(255, 1, 101, 252),
       ),
       body: Center(
         child: _buildImagePicker(),
@@ -236,12 +237,12 @@ Future<void> _deletePost(int index) async {
           ? FloatingActionButton(
               onPressed: _pickImage,
               tooltip: 'Pick Image',
-              child: const Icon(Icons.add_a_photo),
+              child: const Icon(Icons.add_a_photo,color: Color.fromARGB(255, 1, 101, 255), ),
             )
           : FloatingActionButton(
               onPressed: _uploadAndSavePost,
               tooltip: 'Post',
-              child: const Icon(Icons.send),
+              child: const Icon(Icons.send,color: Color.fromARGB(255, 1, 101, 255),),
             ),
     );
   }

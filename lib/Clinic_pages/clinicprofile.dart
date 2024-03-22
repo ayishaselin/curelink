@@ -74,7 +74,9 @@ class _ClinicProfileState extends State<ClinicProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Clinic Details'),
+        title: const Text('Clinic Details',style: TextStyle(color: Colors.white),),
+        backgroundColor: Color.fromARGB(255, 1, 101, 252),
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -83,18 +85,18 @@ class _ClinicProfileState extends State<ClinicProfile> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Clinic Name: $_clinicName',
-                style: TextStyle(fontSize: 18),
+                '$_clinicName',
+                style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 8.0),
               Text(
                 'Place: $_place',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 8.0),
               Text(
                 'Opening Hours: $_openingHours',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16.0),
               Center(

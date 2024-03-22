@@ -9,6 +9,7 @@ class DoctorForumScreen extends StatefulWidget {
 
 class _DoctorForumScreenState extends State<DoctorForumScreen> {
   late List<DocumentSnapshot> _docs = [];
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -31,57 +32,47 @@ class _DoctorForumScreenState extends State<DoctorForumScreen> {
 
           _docs = snapshot.data!.docs;
 
-          return ListView.builder(
-            itemCount: _docs.length,
-            itemBuilder: (context, index) {
+          return AnimatedList(
+            key: _listKey,
+            initialItemCount: _docs.length,
+            itemBuilder: (context, index, animation) {
               Map<String, dynamic> data = _docs[index].data() as Map<String, dynamic>;
               String questionId = _docs[index].id;
-              return Card(
-                margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                child: ListTile(
-                  title: Text(data['question']),
-                  subtitle: Text(
-                    data['replies'] != null ? data['replies'].join('\n') : 'No answer yet',
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DoctorReplyScreen(questionId: questionId),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Reply',
-                          style: GoogleFonts.inter(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.all(13),
-                          backgroundColor: const Color.fromARGB(255, 1, 101, 252),
-                          textStyle: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.normal,
+              return SizeTransition(
+                sizeFactor: animation,
+                child: Card(
+                  margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                  child: ListTile(
+                    title: Text(data['question']),
+                    subtitle: Text(
+                      data['replies'] != null ? data['replies'].join('\n') : 'No answer yet',
+                    ),
+                    trailing: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DoctorReplyScreen(questionId: questionId),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(40.0),
-                          ),
-                          minimumSize: const Size(90, 0),
+                        );
+                      },
+                      child: Text(
+                        'Reply',
+                        style: GoogleFonts.inter(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.all(13),
+                        backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+                        textStyle: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.normal,
                         ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40.0),
+                        ),
+                        minimumSize: const Size(90, 0),
                       ),
-                      SizedBox(width: 8.0),
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _docs.removeAt(index);
-                          });
-                        },
-                        icon: Icon(Icons.close),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               );

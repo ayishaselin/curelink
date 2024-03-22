@@ -282,8 +282,7 @@ class _HomeScreensState extends State<HomeScreens> {
             const SizedBox(height: 8),
             Text(
               caption,
-              style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
           ],
         ),
@@ -538,15 +537,7 @@ class DoctorProfileScreen extends StatelessWidget {
 
   List<String> getDayRanges(List<bool> availability) {
     List<String> dayRanges = [];
-    List<String> allDayNames = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday'
-    ];
+    List<String> allDayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     int startIndex = -1;
     int endIndex = -1;
@@ -562,8 +553,7 @@ class DoctorProfileScreen extends StatelessWidget {
           if (startIndex == endIndex) {
             dayRanges.add(allDayNames[startIndex]);
           } else {
-            dayRanges
-                .add('${allDayNames[startIndex]} - ${allDayNames[endIndex]}');
+            dayRanges.add('${allDayNames[startIndex]} - ${allDayNames[endIndex]}');
           }
           startIndex = -1;
           endIndex = -1;
@@ -622,8 +612,7 @@ class DoctorProfileScreen extends StatelessWidget {
                           const SizedBox(height: 8),
                           Text(
                             doctor.name,
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -655,13 +644,10 @@ class DoctorProfileScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        dayRanges.isNotEmpty
-                            ? dayRanges.join(', ')
-                            : 'Not Available',
+                        dayRanges.isNotEmpty ? dayRanges.join(', ') : 'Not Available',
                         style: TextStyle(
                           fontSize: 16,
-                          color:
-                              dayRanges.isNotEmpty ? Colors.green : Colors.red,
+                          color: dayRanges.isNotEmpty ? Colors.green : Colors.red,
                         ),
                         textAlign: TextAlign.center,
                       ),

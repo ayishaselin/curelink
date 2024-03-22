@@ -203,7 +203,8 @@ Future<void> _storeLocation(double clinicLatitude, double clinicLongitude) async
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Clinic Details'),
+        title: const Text('Edit Clinic Details',style: TextStyle(color: Colors.white),),
+        backgroundColor: Color.fromARGB(255, 1, 101, 252),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -223,7 +224,7 @@ Future<void> _storeLocation(double clinicLatitude, double clinicLongitude) async
               const SizedBox(height: 16.0),
               TextField(
                 controller: timingController,
-                decoration: const InputDecoration(labelText: 'Opening hours'),
+                decoration: const InputDecoration(labelText: 'Give your opening hours accurately'),
                 maxLines: 4,
               ),
                 
