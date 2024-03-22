@@ -6,6 +6,7 @@ import 'package:flutter_application_1/User_pages/clinicdetail.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'drdetail.dart';
+import 'specialization.dart';
 
 class HomeScreens extends StatefulWidget {
   const HomeScreens({Key? key}) : super(key: key);
@@ -178,10 +179,13 @@ class _HomeScreensState extends State<HomeScreens> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  buildIconButton('Dentist', 'images/dentist.png'),
-                  buildIconButton('Cardiologist', 'images/cardio.png'),
-                  buildIconButton('Orthopedist', 'images/ortho.png'),
-                  buildIconButton('Neurologist', 'images/neuro.png'),
+                  buildIconButton('Dentist', 'images/dentist.png', 'Dentist'),
+                  buildIconButton(
+                      'Cardiologist', 'images/cardio.png', 'Cardiologist'),
+                  buildIconButton(
+                      'Orthopedist', 'images/ortho.png', 'Orthopedist'),
+                  buildIconButton(
+                      'Neurologist', 'images/neuro.png', 'Neurologist'),
                 ],
               ),
             ),
@@ -266,10 +270,20 @@ class _HomeScreensState extends State<HomeScreens> {
     );
   }
 
-  Widget buildIconButton(String caption, String imagePath) {
+  Widget buildIconButton(
+      String caption, String imagePath, String specialization) {
     return InkWell(
       onTap: () {
-        // Handle button tap
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SpecializationScreen(
+              specialization: specialization,
+              doctors: doctors,
+              userLocation: userLocation,
+            ),
+          ),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 7),
@@ -293,92 +307,92 @@ class _HomeScreensState extends State<HomeScreens> {
   }
 
   Widget buildClinicCard(BuildContext context, Clinic clinic, bool isNearby) {
-  return GestureDetector(
-    onTap: () {
-      print('Clinic ID: ${clinic.id}');
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ClinicDetailScreen(clinic: clinic, clinicId: clinic.id),
-        ),
-      );
-    },
-    child: Container(
-      width: 250,
-      height: 200,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 6,
-            offset: const Offset(0, 3), // changes position of shadow
+    return GestureDetector(
+      onTap: () {
+        print('Clinic ID: ${clinic.id}');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                ClinicDetailScreen(clinic: clinic, clinicId: clinic.id),
           ),
-        ],
-      ),
-      child: Material(
-        borderRadius: BorderRadius.circular(8),
-        clipBehavior: Clip.antiAlias,
-        elevation: 0,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Image.network(
-              clinic.imagePath,
-              height: 100,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) {
-                  return child;
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return const Text('Error loading image');
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  8.0, 8.0, 8.0, 0), // Adjust top padding
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    clinic.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    'Location: ${clinic.place}',
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    isNearby ? 'Nearby' : 'Not Nearby',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isNearby ? Colors.green : Colors.red,
-                    ),
-                  ),
-                ],
-              ),
+        );
+      },
+      child: Container(
+        width: 250,
+        height: 200,
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 6,
+              offset: const Offset(0, 3), // changes position of shadow
             ),
           ],
         ),
+        child: Material(
+          borderRadius: BorderRadius.circular(8),
+          clipBehavior: Clip.antiAlias,
+          elevation: 0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image.network(
+                clinic.imagePath,
+                height: 100,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const Text('Error loading image');
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                    8.0, 8.0, 8.0, 0), // Adjust top padding
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      clinic.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Location: ${clinic.place}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      isNearby ? 'Nearby' : 'Not Nearby',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isNearby ? Colors.green : Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget buildDoctorCard(BuildContext context, Doctor doctor, bool isNearby) {
     return GestureDetector(
