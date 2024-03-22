@@ -75,6 +75,7 @@ class _HomeScreensState extends State<HomeScreens> {
                 double clinicLongitude = clinicGeoPoint.longitude;
 
                 return Clinic(
+                  id: doc.id, // Use the document ID as the clinic ID
                   name: data['clinicName'] ?? '',
                   location: LatLng(clinicLatitude, clinicLongitude),
                   imagePath: data['_profilePicUrl'] ?? '',
@@ -119,7 +120,7 @@ class _HomeScreensState extends State<HomeScreens> {
                 return Doctor(
                   name: data['Name'] ?? '',
                   specialization: data['Specialization'] ?? '',
-                  imagePath: data['_profilePicUrl'] ?? '',
+                  imagePath: data['ProfilePicUrl'] ?? '',
                   location: LatLng(doctorLatitude, doctorLongitude),
                   bio: data['Bio'] ?? '',
                   timing: data['Timing'] ?? '',
@@ -282,7 +283,8 @@ class _HomeScreensState extends State<HomeScreens> {
             const SizedBox(height: 8),
             Text(
               caption,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+              style:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
           ],
         ),
@@ -291,91 +293,92 @@ class _HomeScreensState extends State<HomeScreens> {
   }
 
   Widget buildClinicCard(BuildContext context, Clinic clinic, bool isNearby) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                ClinicDetailScreen(clinic: clinic, clinicId: ''),
+  return GestureDetector(
+    onTap: () {
+      print('Clinic ID: ${clinic.id}');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ClinicDetailScreen(clinic: clinic, clinicId: clinic.id),
+        ),
+      );
+    },
+    child: Container(
+      width: 250,
+      height: 200,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 6,
+            offset: const Offset(0, 3), // changes position of shadow
           ),
-        );
-      },
-      child: Container(
-        width: 250,
-        height: 200,
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 6,
-              offset: const Offset(0, 3), // changes position of shadow
+        ],
+      ),
+      child: Material(
+        borderRadius: BorderRadius.circular(8),
+        clipBehavior: Clip.antiAlias,
+        elevation: 0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.network(
+              clinic.imagePath,
+              height: 100,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return const Text('Error loading image');
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  8.0, 8.0, 8.0, 0), // Adjust top padding
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    clinic.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Location: ${clinic.place}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    isNearby ? 'Nearby' : 'Not Nearby',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isNearby ? Colors.green : Colors.red,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
-        child: Material(
-          borderRadius: BorderRadius.circular(8),
-          clipBehavior: Clip.antiAlias,
-          elevation: 0,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.network(
-                clinic.imagePath,
-                height: 100,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  } else {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return const Text('Error loading image');
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    8.0, 8.0, 8.0, 0), // Adjust top padding
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      clinic.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Location: ${clinic.place}',
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      isNearby ? 'Nearby' : 'Not Nearby',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isNearby ? Colors.green : Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget buildDoctorCard(BuildContext context, Doctor doctor, bool isNearby) {
     return GestureDetector(
@@ -488,6 +491,7 @@ class _HomeScreensState extends State<HomeScreens> {
 }
 
 class Clinic {
+  final String id; // New field to hold clinic ID
   final String name;
   final LatLng location;
   final String imagePath;
@@ -495,6 +499,7 @@ class Clinic {
   final String openingHours;
 
   Clinic({
+    required this.id,
     required this.name,
     required this.location,
     required this.imagePath,
@@ -537,7 +542,15 @@ class DoctorProfileScreen extends StatelessWidget {
 
   List<String> getDayRanges(List<bool> availability) {
     List<String> dayRanges = [];
-    List<String> allDayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    List<String> allDayNames = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'
+    ];
 
     int startIndex = -1;
     int endIndex = -1;
@@ -553,7 +566,8 @@ class DoctorProfileScreen extends StatelessWidget {
           if (startIndex == endIndex) {
             dayRanges.add(allDayNames[startIndex]);
           } else {
-            dayRanges.add('${allDayNames[startIndex]} - ${allDayNames[endIndex]}');
+            dayRanges
+                .add('${allDayNames[startIndex]} - ${allDayNames[endIndex]}');
           }
           startIndex = -1;
           endIndex = -1;
@@ -612,7 +626,8 @@ class DoctorProfileScreen extends StatelessWidget {
                           const SizedBox(height: 8),
                           Text(
                             doctor.name,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -644,10 +659,13 @@ class DoctorProfileScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        dayRanges.isNotEmpty ? dayRanges.join(', ') : 'Not Available',
+                        dayRanges.isNotEmpty
+                            ? dayRanges.join(', ')
+                            : 'Not Available',
                         style: TextStyle(
                           fontSize: 16,
-                          color: dayRanges.isNotEmpty ? Colors.green : Colors.red,
+                          color:
+                              dayRanges.isNotEmpty ? Colors.green : Colors.red,
                         ),
                         textAlign: TextAlign.center,
                       ),

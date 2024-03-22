@@ -235,9 +235,11 @@ Future<void> _deletePost(int index) async {
       ),
       floatingActionButton: _selectedImage == null
           ? FloatingActionButton(
+            
               onPressed: _pickImage,
               tooltip: 'Pick Image',
               child: const Icon(Icons.add_a_photo,color: Color.fromARGB(255, 1, 101, 255), ),
+              backgroundColor: Colors.white,
             )
           : FloatingActionButton(
               onPressed: _uploadAndSavePost,

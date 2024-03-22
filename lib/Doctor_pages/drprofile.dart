@@ -1,4 +1,4 @@
- import 'dart:async';
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DoctorProfileEdit extends StatefulWidget {
   const DoctorProfileEdit({Key? key, required String userId}) : super(key: key);
@@ -21,7 +22,8 @@ class DoctorProfileEdit extends StatefulWidget {
 
 class _DoctorProfileEditState extends State<DoctorProfileEdit> {
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController specializationController = TextEditingController();
+  final TextEditingController specializationController =
+      TextEditingController();
   final TextEditingController bioController = TextEditingController();
   final TextEditingController timingController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
@@ -39,79 +41,97 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
     _fetchDoctorDetails();
   }
 
-  Future<void> _fetchDoctorDetails() async {
-    try {
-      final userId = _auth.currentUser?.uid;
-      if (userId != null) {
-        final doctorDoc = await _firestore.collection('DOCTOR').doc(userId).get();
-
-        if (doctorDoc.exists) {
-          setState(() {
-            nameController.text = doctorDoc['Name'] ?? '';
-            specializationController.text = doctorDoc['Specialization'] ?? '';
-            bioController.text = doctorDoc['Bio'] ?? '';
-            timingController.text = doctorDoc['Timing'] ?? '';
-            locationController.text = doctorDoc['Location'] ?? '';
-            _profilePicUrl = doctorDoc['ProfilePicUrl'] ?? '';
-
-            List<dynamic>? days = doctorDoc['Availability'];
-            if (days != null) {
-              for (int i = 0; i < 7; i++) {
-                _availability[i] = days.contains(i);
-              }
-            }
-          });
-        }
-      }
-    } catch (e) {
-      print('Error fetching doctor details: $e');
-    }
-  }
-
-  Future<void> _signOut() async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Signin(userId: '')));
-  }
-
-  Future<void> _saveDoctorInformation() async {
+ Future<void> _fetchDoctorDetails() async {
   try {
+    print('Fetching doctor details...');
     final userId = _auth.currentUser?.uid;
-
     if (userId != null) {
-      await _firestore.collection('DOCTOR').doc(userId).update({
-        'Name': nameController.text,
-        'Specialization': specializationController.text,
-        'Bio': bioController.text,
-        'Timing': timingController.text,
-        'Location': GeoPoint(
-          double.parse(_doctorLocation.split(',')[0].trim()), // latitude
-          double.parse(_doctorLocation.split(',')[1].trim()), // longitude
-        ),
-        'Availability': _availability,
-        // Remove 'TimeSlots' update
-        // Add more fields as needed
-      });
+      print('User ID found: $userId');
+      final doctorDoc = await _firestore.collection('DOCTOR').doc(userId).get();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Doctor information saved successfully.'),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      if (doctorDoc.exists) {
+        print('Doctor document found');
+        setState(() {
+          nameController.text = doctorDoc['Name'] ?? '';
+          specializationController.text = doctorDoc['Specialization'] ?? '';
+          bioController.text = doctorDoc['Bio'] ?? '';
+          timingController.text = doctorDoc['Timing'] ?? '';
+          locationController.text = doctorDoc['Location'] != null
+    ? '${doctorDoc['Location'].latitude}, ${doctorDoc['Location'].longitude}'
+    : '';
+
+
+          List<dynamic>? days = doctorDoc['Availability'];
+          if (days != null) {
+            for (int i = 0; i < 7; i++) {
+              _availability[i] = days.contains(i);
+            }
+          }
+        });
+
+        _profilePicUrl = doctorDoc['ProfilePicUrl'] ?? '';
+        print('Profile Pic: $_profilePicUrl');
+        setState(() {
+          _profilePicUrl = _profilePicUrl;
+          
+        });
+      } else {
+        print('Doctor document not found');
+      }
     } else {
-      print('No user signed in.');
+      print('User ID not found');
     }
   } catch (e) {
-    print('Error saving doctor information: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Error saving doctor information. Please try again.'),
-        duration: Duration(seconds: 3),
-      ),
-    );
+    print('Error fetching doctor details: $e');
   }
 }
 
+
+
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => Signin(userId: '')));
+  }
+
+  Future<void> _saveDoctorInformation() async {
+    try {
+      final userId = _auth.currentUser?.uid;
+
+      if (userId != null) {
+        await _firestore.collection('DOCTOR').doc(userId).update({
+          'Name': nameController.text,
+          'Specialization': specializationController.text,
+          'Bio': bioController.text,
+          'Timing': timingController.text,
+          'Location': GeoPoint(
+            double.parse(_doctorLocation.split(',')[0].trim()), // latitude
+            double.parse(_doctorLocation.split(',')[1].trim()), // longitude
+          ),
+          'Availability': _availability,
+          // Remove 'TimeSlots' update
+          // Add more fields as needed
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Doctor information saved successfully.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        print('No user signed in.');
+      }
+    } catch (e) {
+      print('Error saving doctor information: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error saving doctor information. Please try again.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
 
   Future<void> _pickAndCropImage() async {
     final picker = ImagePicker();
@@ -120,36 +140,65 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
 
       if (pickedFile != null) {
         final croppedFile = await _cropImage(File(pickedFile.path));
+
         if (croppedFile != null) {
           final imageUrl = await _uploadImageToStorage(croppedFile);
           if (imageUrl != null) {
+            await _updateProfilePicUrl(_auth.currentUser!.uid, imageUrl);
+
+            // Trigger a rebuild by changing the key
             setState(() {
               _circleAvatarKey = UniqueKey();
-              _profilePicUrl = imageUrl;
             });
           }
         }
       }
     } catch (e) {
-      print('Error picking and cropping image: $e');
+      print('Error in _pickAndCropImage: $e');
       // Optionally, show an error message to the user
+    }
+  }
+
+  Future<void> _updateProfilePicUrl(String userId, String? imageUrl) async {
+    try {
+      if (imageUrl != null) {
+        await _firestore.collection('DOCTOR').doc(userId).update({
+          'ProfilePicUrl': imageUrl,
+        });
+
+        // Save the URL in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('ProfilePicUrl', imageUrl);
+
+        setState(() {
+          _profilePicUrl = imageUrl;
+        });
+      }
+    } catch (e) {
+      print('Error updating profile picture URL: $e');
     }
   }
 
   Future<File?> _cropImage(File imageFile) async {
     final ImageCropper imageCropper = ImageCropper();
-    final CroppedFile? croppedFile = await imageCropper.cropImage(
+    final croppedFile = await imageCropper.cropImage(
       sourcePath: imageFile.path,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
       compressFormat: ImageCompressFormat.jpg,
       compressQuality: 70,
     );
 
-    return croppedFile?.path != null ? File(croppedFile!.path!) : null;
+    if (croppedFile != null && croppedFile.path != null) {
+      return File(croppedFile.path!);
+    } else {
+      return null;
+    }
   }
 
   Future<String?> _uploadImageToStorage(File imageFile) async {
     try {
-      final storageRef = _storage.ref().child('profile_pics/${_auth.currentUser!.uid}.jpg');
+      final storageRef =
+          _storage.ref().child('profile_pics/${_auth.currentUser!.uid}.jpg');
       await storageRef.putFile(imageFile);
 
       final downloadUrl = await storageRef.getDownloadURL();
@@ -197,10 +246,12 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
 
   @override
   Widget build(BuildContext context) {
+    print("_profilePicUrl: $_profilePicUrl");
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Doctor Profile',style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Doctor Profile', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromARGB(255, 1, 101, 252),
       ),
       body: SingleChildScrollView(
@@ -219,7 +270,7 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
                       key: _circleAvatarKey,
                       radius: 50.0,
                       backgroundImage: _profilePicUrl.isNotEmpty
-                     ? CachedNetworkImageProvider(_profilePicUrl)
+                          ? CachedNetworkImageProvider(_profilePicUrl)
                           : const AssetImage('images/profile.png')
                               as ImageProvider,
                     ),
@@ -260,7 +311,8 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
               const SizedBox(height: 16.0),
               TextField(
                 controller: timingController,
-                decoration: const InputDecoration(labelText: 'Give the available timing accurately'),
+                decoration: const InputDecoration(
+                    labelText: 'Give the available timing accurately'),
               ),
               const SizedBox(height: 16.0),
               SingleChildScrollView(
@@ -295,7 +347,8 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
                     });
                   }
                 },
-                child: Text('Ask for Location', style: GoogleFonts.inter(color: Colors.white)),
+                child: Text('Ask for Location',
+                    style: GoogleFonts.inter(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.all(15),
                   backgroundColor: const Color.fromARGB(255, 1, 101, 252),
@@ -314,7 +367,8 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
                 onPressed: () async {
                   await _saveDoctorInformation();
                 },
-                child: Text('Save', style: GoogleFonts.inter(color: Colors.white)),
+                child:
+                    Text('Save', style: GoogleFonts.inter(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.all(15),
                   backgroundColor: const Color.fromARGB(255, 1, 101, 252),
@@ -332,9 +386,13 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
               ElevatedButton(
                 onPressed: () async {
                   await _auth.signOut();
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Signin(userId: '')));
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Signin(userId: '')));
                 },
-                child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
+                child: Text('Sign Out',
+                    style: GoogleFonts.inter(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.all(15),
                   backgroundColor: const Color.fromARGB(255, 1, 101, 252),
@@ -359,7 +417,7 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
     switch (index) {
       case 0:
         return 'Monday';
-      case 1: 
+      case 1:
         return 'Tuesday';
       case 2:
         return 'Wednesday';
