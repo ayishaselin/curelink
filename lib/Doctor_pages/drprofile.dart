@@ -74,40 +74,44 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
   }
 
   Future<void> _saveDoctorInformation() async {
-    try {
-      final userId = _auth.currentUser?.uid;
+  try {
+    final userId = _auth.currentUser?.uid;
 
-      if (userId != null) {
-        await _firestore.collection('DOCTOR').doc(userId).update({
-          'Name': nameController.text,
-          'Specialization': specializationController.text,
-          'Bio': bioController.text,
-          'Timing': timingController.text,
-          'Location':  _doctorLocation,
-          'Availability': _availability,
-          // Remove 'TimeSlots' update
-          // Add more fields as needed
-        });
+    if (userId != null) {
+      await _firestore.collection('DOCTOR').doc(userId).update({
+        'Name': nameController.text,
+        'Specialization': specializationController.text,
+        'Bio': bioController.text,
+        'Timing': timingController.text,
+        'Location': GeoPoint(
+          double.parse(_doctorLocation.split(',')[0].trim()), // latitude
+          double.parse(_doctorLocation.split(',')[1].trim()), // longitude
+        ),
+        'Availability': _availability,
+        // Remove 'TimeSlots' update
+        // Add more fields as needed
+      });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Doctor information saved successfully.'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      } else {
-        print('No user signed in.');
-      }
-    } catch (e) {
-      print('Error saving doctor information: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Error saving doctor information. Please try again.'),
+          content: Text('Doctor information saved successfully.'),
           duration: Duration(seconds: 3),
         ),
       );
+    } else {
+      print('No user signed in.');
     }
+  } catch (e) {
+    print('Error saving doctor information: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Error saving doctor information. Please try again.'),
+        duration: Duration(seconds: 3),
+      ),
+    );
   }
+}
+
 
   Future<void> _pickAndCropImage() async {
     final picker = ImagePicker();
