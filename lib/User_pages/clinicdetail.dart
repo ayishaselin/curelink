@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_application_1/User_pages/home_page.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class ClinicDetailScreen extends StatelessWidget {
   final Clinic clinic;
@@ -19,9 +21,9 @@ class ClinicDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           clinic.name,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color.fromARGB(255, 1, 101, 252),
+        backgroundColor: const Color.fromARGB(255, 1, 101, 252),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -42,51 +44,94 @@ class ClinicDetailScreen extends StatelessWidget {
                 children: [
                   Text(
                     '${clinic.name}',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Opening Hours: ${clinic.openingHours}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(height: 16),
+                  
+                  const SizedBox(height: 8),
                   Text(
                     'Place: ${clinic.place}',
-                    style: TextStyle(fontSize: 18),
+                    style: const TextStyle(fontSize: 18),
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Posts:',
+                   const SizedBox(height: 8),
+                   Row(
+                     children: [
+                       Text(
+                        'Contact:',
+                        style: const TextStyle(fontSize: 18),
+                                         ),
+                     
+                   
+
+               GestureDetector(
+  onTap: () {
+    launch("tel://${clinic.contact}");
+  },
+  child: Text(
+    ' ${clinic.contact ?? 'No contact available'}',
+    style: TextStyle(
+      fontSize: 18,
+      color: Colors.blue, // Set the text color to blue
+    ),
+  ),
+)
+
+,],),
+                  const SizedBox(height: 8),Text(
+                    'Opening Hours: ${clinic.openingHours}',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 16),
+                  const SizedBox(
+                width: double.infinity,
+                child: Divider( 
+                  thickness: 1,
+                  color: Colors.grey, 
+                ),
+              ),
+                  const Text(
+                    'Posts',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
-                  StreamBuilder<DocumentSnapshot>(
-                    stream: postsRef.doc(clinicId).snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      }
-        
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      }
-        
-                      List<dynamic> posts = snapshot.data!.get('posts');
-        
-                      List<Widget> postImages = posts.map<Widget>((post) {
-                        String imageUrl = post['image_url'];
-        
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Image.network(imageUrl),
-                        );
-                      }).toList();
-        
-                      return Column(
-                        children: postImages,
-                      );
-                    },
-                  ),
+                  const SizedBox(height: 8),
+                 StreamBuilder<DocumentSnapshot>(
+  stream: postsRef.doc(clinicId).snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.hasError) {
+      return Text('Error: ${snapshot.error}');
+    }
+
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const CircularProgressIndicator();
+    }
+
+    var data = snapshot.data!.data() as Map<String, dynamic>?;
+
+    if (data == null || !data.containsKey('posts')) {
+      return const Text('No posts available');
+    }
+
+    List<dynamic> posts = data['posts'];
+
+    if (posts.isEmpty) {
+      return const Text('No posts available');
+    }
+
+    List<Widget> postImages = posts.map<Widget>((post) {
+      String imageUrl = post['image_url'];
+
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.network(imageUrl),
+      );
+    }).toList();
+
+    return Column(
+      children: postImages,
+    );
+  },
+),
+
+
                 ],
               ),
             ),

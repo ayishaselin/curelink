@@ -140,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     _fullName.isNotEmpty ? _fullName : 'Name not found',
                     style: GoogleFonts.inter(
-                        fontSize: 20, fontWeight: FontWeight.w500),
+                        fontSize: 25, fontWeight: FontWeight.bold),
                   ),
                   Text(
                     _Email,

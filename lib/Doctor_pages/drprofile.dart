@@ -27,6 +27,9 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
   final TextEditingController bioController = TextEditingController();
   final TextEditingController timingController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
+  final TextEditingController aboutController = TextEditingController();
+  final TextEditingController contactController = TextEditingController();
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -60,7 +63,7 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
     ? '${doctorDoc['Location'].latitude}, ${doctorDoc['Location'].longitude}'
     : '';
 
-
+           aboutController.text = doctorDoc['About'] ?? '';
           List<dynamic>? days = doctorDoc['Availability'];
           if (days != null) {
             for (int i = 0; i < 7; i++) {
@@ -108,9 +111,11 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
             double.parse(_doctorLocation.split(',')[0].trim()), // latitude
             double.parse(_doctorLocation.split(',')[1].trim()), // longitude
           ),
+          'About': aboutController.text,
           'Availability': _availability,
-          // Remove 'TimeSlots' update
-          // Add more fields as needed
+          'Contact': contactController.text,
+          
+          
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -304,8 +309,20 @@ class _DoctorProfileEditState extends State<DoctorProfileEdit> {
               ),
               const SizedBox(height: 16.0),
               TextField(
+  controller: contactController,
+  keyboardType: TextInputType.phone, // Set the keyboard type to phone
+  decoration: const InputDecoration(labelText: 'Contact Number'),
+),
+const SizedBox(height: 16.0),
+               TextField( // Added
+                controller: aboutController,
+                decoration: const InputDecoration(labelText: 'About'),
+                maxLines: null, 
+              ),
+              const SizedBox(height: 16.0),
+              TextField(
                 controller: bioController,
-                decoration: const InputDecoration(labelText: 'Bio'),
+                decoration: const InputDecoration(labelText: 'Your Qualifications'),
                 maxLines: 4,
               ),
               const SizedBox(height: 16.0),

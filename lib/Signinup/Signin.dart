@@ -291,10 +291,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
                 onPressed: () async {
                   // Call the signInWithEmailAndPassword method
                   await signInWithEmailAndPassword(context, _emailController.text, _passwordController.text);
-                  //  Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(builder: (context) => Navigation()),
-                  //     );
+                  
                 },
                 child: Text('Sign In', style: GoogleFonts.inter(color: Colors.white)),
                 style: ElevatedButton.styleFrom(

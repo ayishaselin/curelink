@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_application_1/User_pages/clinicdetail.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'drdetail.dart';
 import 'specialization.dart';
@@ -82,6 +83,7 @@ class _HomeScreensState extends State<HomeScreens> {
                   imagePath: data['_profilePicUrl'] ?? '',
                   place: data['place'] ?? '',
                   openingHours: data['openingHours'] ?? '',
+                  contact: data['contact'] ?? '',
                 );
               }
             }
@@ -125,7 +127,8 @@ class _HomeScreensState extends State<HomeScreens> {
                   location: LatLng(doctorLatitude, doctorLongitude),
                   bio: data['Bio'] ?? '',
                   timing: data['Timing'] ?? '',
-                  availability: availability,
+                  availability: availability, about: data['About'] ?? '',
+                  contact: data['Contact'] ?? '',
                 );
               }
             }
@@ -373,7 +376,7 @@ class _HomeScreensState extends State<HomeScreens> {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      'Location: ${clinic.place}',
+                      '${clinic.place}',
                       style: const TextStyle(fontSize: 14),
                     ),
                     const SizedBox(height: 8),
@@ -511,6 +514,7 @@ class Clinic {
   final String imagePath;
   final String place;
   final String openingHours;
+  final String contact;
 
   Clinic({
     required this.id,
@@ -519,6 +523,7 @@ class Clinic {
     required this.imagePath,
     required this.place,
     required this.openingHours,
+    required this.contact
   });
 }
 
@@ -530,6 +535,8 @@ class Doctor {
   final String bio;
   final String timing;
   final List<bool> availability;
+  final String about;
+  final String contact;
 
   Doctor({
     required this.name,
@@ -539,6 +546,8 @@ class Doctor {
     required this.bio,
     required this.timing,
     required this.availability,
+    required this.about,
+    required this.contact,
   });
 }
 
@@ -655,17 +664,58 @@ class DoctorProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Bio: ${doctor.bio}',
+                  'Qualifications: ${doctor.bio}',
                   style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Timing: ${doctor.timing}',
-                  style: const TextStyle(fontSize: 16),
-                ),
+                Row(
+                     children: [
+                       Text(
+                        'Contact:',
+                        style: const TextStyle(fontSize: 18),
+                                         ),
+                     
+                   
+
+               GestureDetector(
+  onTap: () {
+    launch("tel://${doctor.contact}");
+  },
+  child: Text(
+    ' ${doctor.contact ?? 'No contact available'}',
+    style: TextStyle(
+      fontSize: 16,
+      color: Colors.blue, // Set the text color to blue
+    ),
+  ),
+)
+
+,],),
+               
+const SizedBox(height: 8),
+                Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    const Text(
+      'Available Timing: ',
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.black, // Change the color to your desired color
+      ),
+    ),
+    Text(
+      '${doctor.timing}',
+      style: const TextStyle(
+        fontSize: 16,
+        color: Colors.green
+      ),
+    ),
+  ],
+),
+
                 const SizedBox(height: 8),
                 const Text(
-                  'Availability:',
+                  'Available days:',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
@@ -685,7 +735,29 @@ class DoctorProfileScreen extends StatelessWidget {
                       ),
                     ),
                   ],
+                ), const SizedBox(height: 16),
+              const SizedBox(
+                width: double.infinity,
+                child: Divider( 
+                  thickness: 1,
+                  color: Colors.grey, 
                 ),
+              ),
+                 const SizedBox(height: 16),
+                const Text(
+                  'About:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                ),
+                const SizedBox(height: 8),
+                Text(
+  doctor.about != null && doctor.about.isNotEmpty
+      ? doctor.about
+      : 'No About available',
+  style: const TextStyle(
+    fontSize: 16,
+    color: Color.fromARGB(255, 90, 89, 89),
+  ),
+),
               ],
             ),
           ),

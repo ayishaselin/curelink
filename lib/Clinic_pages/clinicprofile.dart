@@ -16,10 +16,7 @@ class ClinicProfile extends StatefulWidget {
 }
 
 class _ClinicProfileState extends State<ClinicProfile> {
-  late TextEditingController nameController;
-  late TextEditingController placeController;
-  late TextEditingController timingController;
-
+   
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -28,15 +25,14 @@ class _ClinicProfileState extends State<ClinicProfile> {
   String _clinicName = '';
   String _place = '';
   String _openingHours = '';
+  String _contact = '';
 
   StreamSubscription<DocumentSnapshot>? _clinicDetailsSubscription;
 
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController();
-    placeController = TextEditingController();
-    timingController = TextEditingController();
+     
     _fetchClinicDetails(); // Subscribe to clinic details updates
   }
 
@@ -62,6 +58,8 @@ class _ClinicProfileState extends State<ClinicProfile> {
               _place = clinicDoc.data()?['place'] ?? '';
               _openingHours = clinicDoc.data()?['openingHours'] ?? '';
               _profilePicUrl = clinicDoc.data()?['profilePicUrl'] ?? '';
+              _contact = clinicDoc.data()?['contact'] ?? '';
+              print('Contact: $_contact');
             });
           }
         },
@@ -96,6 +94,11 @@ class _ClinicProfileState extends State<ClinicProfile> {
               const SizedBox(height: 8.0),
               Text(
                 'Opening Hours: $_openingHours',
+                style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                'Contact: $_contact', // Display the contact number
                 style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16.0),

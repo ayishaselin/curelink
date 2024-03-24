@@ -160,7 +160,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
                   children: [
                      
                      
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 25.0),
               Container(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,38 +192,8 @@ Future<void> signInWithGoogle(BuildContext context) async {
                 ),
               ),
               const SizedBox(height: 16.0),
-              Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Phone number',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.normal,
-                        fontSize: 16.0,
-                      ),
-                    ),
-                    const SizedBox(height: 7.0),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: TextField(
-                        controller: PhoneController,
-                        obscureText: false,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter your phone number',
-                          hintStyle: TextStyle(color: Colors.grey),
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16.0),
+               
+               
               Container(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,69 +226,10 @@ Future<void> signInWithGoogle(BuildContext context) async {
                 ),
               ),
               const SizedBox(height: 0.01),
-              Row(
-                children: [
-                  StatefulBuilder(
-                    builder: (context, setState) {
-                      return Checkbox(
-                        value: agreedToTerms,
-                        onChanged: (value) {
-                          setState(() {
-                            agreedToTerms = value ?? false;
-                          });
-                        },
-                      );
-                    },
-                  ),
-                  const Text(
-                    'Agree with',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Terms()),
-                      );
-                    },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      'Terms and conditions',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.normal,
-                        letterSpacing: 0.01,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20.0),
+               
+              const SizedBox(height: 40.0),
               ElevatedButton(
   onPressed:()  {
-   // try {
-    //  await _auth.createUserWithEmailAndPassword(
-      //  email: emailController.text,
-      //  password: passwordController.text,
-    //  );
-     // Navigator.pushReplacement(
-       // context,
-      //  MaterialPageRoute(builder: (context) => const LocationScreen()),
-     // );
-    //} catch (e) {
-    //  print(e);
-      // Handle errors here, e.g., show an error message
-  //  }
- // },
      signUpAndStoreUserData(context);
   },
   child: Text('Sign Up', style: GoogleFonts.inter(color: Colors.white)),

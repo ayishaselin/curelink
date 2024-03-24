@@ -134,10 +134,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Implement profile update logic
-                // Update user details using nameController.text and emailController.text
-                // You might want to add validation and error handling here
-                Navigator.pop(context); // Return to the profile page after editing
+                
+                Navigator.pop(context); 
               },
               child: Text('Save Changes'),
             ),

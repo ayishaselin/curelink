@@ -23,6 +23,8 @@ class _ClinicProfileEditState extends State<ClinicProfileEdit> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController placeController = TextEditingController();
   final TextEditingController timingController = TextEditingController();
+  final TextEditingController contactController = TextEditingController();
+
    
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -31,6 +33,31 @@ class _ClinicProfileEditState extends State<ClinicProfileEdit> {
   late Key _circleAvatarKey = UniqueKey();
   String _clinicLocation = ''; 
 
+ void initState() {
+    super.initState();
+    // Load existing clinic information when the page is loaded
+    _loadClinicInformation();
+  }
+
+ Future<void> _loadClinicInformation() async {
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+
+      if (userId != null) {
+        final clinicDoc = await FirebaseFirestore.instance.collection('CLINIC').doc(userId).get();
+        if (clinicDoc.exists) {
+          setState(() {
+            nameController.text = clinicDoc['clinicName'] ?? '';
+            placeController.text = clinicDoc['place'] ?? '';
+            timingController.text = clinicDoc['openingHours'] ?? '';
+            contactController.text = clinicDoc['contact'] ?? '';
+          });
+        }
+      }
+    } catch (e) {
+      print('Error loading clinic information: $e');
+    }
+  }
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Signin(userId: '',)));
@@ -45,6 +72,7 @@ class _ClinicProfileEditState extends State<ClinicProfileEdit> {
           'clinicName': nameController.text,
           'place': placeController.text,
           'openingHours': timingController.text,
+          'contact': contactController.text,
           // 'clinicLocation': _clinicLocation, // Store clinic location
         });
         // Optionally, show a success message to the user
@@ -227,7 +255,13 @@ Future<void> _storeLocation(double clinicLatitude, double clinicLongitude) async
                 decoration: const InputDecoration(labelText: 'Give your opening hours accurately'),
                 maxLines: 4,
               ),
-                
+              const SizedBox(height: 16.0),
+               TextField(
+  controller: contactController,
+  keyboardType: TextInputType.number, // Set the keyboard type to number
+  decoration: const InputDecoration(labelText: 'Contact'),
+),
+ 
                const SizedBox(height: 16.0),
               // Text above the location button
               const Text(

@@ -24,7 +24,10 @@ class SpecializationScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Doctors - $specialization'),
+        title: Text('$specialization',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromARGB(255, 1, 101, 252),
       ),
       body: ListView.builder(
         itemCount: filteredDoctors.length,
